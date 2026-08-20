@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distribuição por Equipe</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #1f2d3d; padding: 24px; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #6b7785; margin-bottom: 20px; font-size: 13px; }
+  .cards { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .card-total { flex: 1; min-width: 200px; background: #fff; border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .card-total .label { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #6b7785; }
+  .card-total .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .card-total .value.green { color: #2e7d32; }
+  .card-total .value.blue { color: #1976d2; }
+  .card-total .value.orange { color: #e65100; }
+  .card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow-x: auto; }
+  h2 { font-size: 16px; margin-bottom: 12px; color: #1f2d3d; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #1f2d3d; color: #fff; padding: 8px 10px; text-align: left; white-space: nowrap; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e8ecf1; }
+  tr:hover td { background: #f8fafc; }
+  tr.total td { background: #eef2f7; font-weight: 700; border-top: 2px solid #cfd8e3; }
+  .c { text-align: center; }
+  .r { text-align: right; }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge.repassa { background: #fce4d6; color: #e65100; }
+  .badge.recebe { background: #e2efda; color: #2e7d32; }
+  .badge.ok { background: #e8ecf1; color: #455a64; }
+  .nota { font-size: 12px; color: #6b7785; margin-top: 6px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn { border: none; padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; color: #fff; }
+  .btn-repassa { background: #e65100; }
+  .btn-recebe { background: #2e7d32; }
+  .btn-ok { background: #607d8b; }
+  .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.55); align-items: center; justify-content: center; z-index: 10; }
+  .modal { background: #fff; border-radius: 12px; padding: 24px 28px; width: 380px; max-width: 92vw; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  .modal h2 { margin-bottom: 14px; }
+  .modal table td { border-bottom: 1px solid #e8ecf1; }
+  .modal table td:first-child { color: #6b7785; }
+  .fechar { position: absolute; top: 10px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #6b7785; }
+  .destaque { font-weight: 700; }
+  .destaque.neg { color: #e65100; }
+  .destaque.pos { color: #2e7d32; }
+  .neg { color: #e65100; font-weight: 600; }
+  .pos { color: #2e7d32; font-weight: 600; }
+  .pag-hdr { margin-top: 14px; font-weight: 700; font-size: 13px; color: #1f2d3d; }
+  .pag-tab { margin-top: 6px; }
+  .legenda { font-size: 11px; color: #6b7785; margin-top: 10px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .mini { border: 1px solid #e0e6ee; border-radius: 10px; background: #fff; overflow: hidden; }
+  .mini-h { background: #e65100; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 10px; }
+  .mini-h span { font-weight: 400; font-size: 11px; opacity: .9; float: right; }
+  .mini table { width: 100%; font-size: 12px; }
+  .mini td { padding: 5px 10px; border-bottom: 1px solid #eef2f6; }
+  .mini tr.total td { background: #fdf2ec; font-weight: 700; }
+  .mini tr.total td:last-child { color: #e65100; }
+  .mini-envia { font-size: 11px; font-weight: 700; color: #6b7785; padding: 7px 10px 2px; }
+  .mini-pag tr:last-child td { border-bottom: none; }
+  details.repass-section summary { cursor: pointer; padding: 12px 16px; font-weight: 700; font-size: 14px; color: #1f2d3d; user-select: none; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  details.repass-section summary::-webkit-details-marker { display: none; }
+  details.repass-section summary::after { content: '+'; font-size: 18px; color: #1976d2; }
+  details.repass-section[open] summary::after { content: '−'; }
+  details.repass-section .rep-body { padding: 0 16px 14px; overflow-x: auto; }
+  @media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .cards-grid { grid-template-columns: 1fr; } }
+  .row { display: flex; gap: 16px; align-items: flex-start; }
+  .card.narrow { flex: 0 0 auto; }
+  .card.recebedores { flex: 1 1 auto; min-width: 0; }
+  .btn-lista { background: #1976d2; margin-left: 12px; }
+  .modal.lista { width: 580px; max-width: 95vw; max-height: 84vh; overflow-y: auto; }
+  .modal.lista h3 { font-size: 13px; margin: 14px 0 6px; color: #1f2d3d; }
+  .list-hd { background: #1976d2; color: #fff; }
+  tr.dir td { background: #fdf0e3 !important; font-weight: 600; }
+  tr.dir td:first-child { color: #e65100; }
+  .grupo { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #455a64; margin: 10px 0 6px; }
+  .grupo:first-of-type { margin-top: 0; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .dot-repassa { background: #e65100; }
+  .dot-recebe { background: #2e7d32; }
+  .dot-ok { background: #607d8b; }
+  .card.narrow table { min-width: 280px; }
+  .card.resumo { flex: 1 1 auto; min-width: 480px; }
+  .card.equipes { padding: 6px 18px; }
+  details.eq-collapse { border: 1px solid #e0e6ee; border-radius: 10px; margin: 8px 0; background: #fff; }
+  details.eq-collapse summary { padding: 13px 18px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; user-select: none; }
+  details.eq-collapse summary::-webkit-details-marker { display: none; }
+  details.eq-collapse summary::after { content: '+'; font-size: 18px; font-weight: 400; color: #1976d2; line-height: 1; }
+  details.eq-collapse[open] summary::after { content: '−'; }
+  details.eq-collapse:hover summary { background: #f8fafc; }
+  details.eq-collapse .eq-info { font-weight: 400; font-size: 12px; color: #6b7785; }
+  .eq-body { padding: 0 16px 14px; overflow-x: auto; }
+  .eq-body table { min-width: 560px; }
+  @media print { body { padding: 8px; } .card { box-shadow: none; break-inside: avoid; } }
+</style>
+</head>
+<body>
+  <h1>Campanha Vendas Julho - HAPVIDA</h1>
+  <div class="sub">Escala de vidas aplicada às vidas atuais &bull; Valores recebidos (HAPVIDA) confrontados com o devido</div>
+
+  <div class="cards">
+    <div class="card-total"><div class="label">Total recebido (HAPVIDA)</div><div class="value blue">R$ 9.360,00</div></div>
+    <div class="card-total"><div class="label">Total devido aos vendedores</div><div class="value green">R$ 5.620,00</div></div>
+    <div class="card-total"><div class="label">Superávit → CORRETORA</div><div class="value orange">R$ 3.725,00</div></div>
+  </div>
+
+  <div class="row">
+    <div class="card narrow">
+      <h2>Escala aplicada</h2>
+      <table>
+        <thead><tr><th>Faixa de vidas</th><th>R$ por vida</th></tr></thead>
+        <tbody>
+          <tr><td>&gt;= 46 vidas</td><td>R$ 50,00</td></tr>
+          <tr><td>35 a 45 vidas</td><td>R$ 40,00</td></tr>
+          <tr><td>28 a 34 vidas</td><td>R$ 30,00</td></tr>
+          <tr><td>17 a 27 vidas</td><td>R$ 25,00</td></tr>
+          <tr><td>6 a 16 vidas</td><td>R$ 15,00</td></tr>
+          <tr><td>0 a 5 vidas</td><td>R$ 0,00</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card recebedores">
+      <h2>Recebedores (HAPVIDA) — clique para ver os valores <button class="btn btn-lista" onclick="abrirLista()">Lista completa de valores</button></h2>
+      <div class="grupo"><span class="dot dot-repassa"></span>Repassa excedente (laranja)</div>
+      <div class="btns"><button class="btn btn-repassa" onclick="abrir(0)">ANDERSON</button><button class="btn btn-repassa" onclick="abrir(4)">JOKEBEDYA</button><button class="btn btn-repassa" onclick="abrir(6)">IAN</button><button class="btn btn-repassa" onclick="abrir(7)">ERBENIA</button><button class="btn btn-repassa" onclick="abrir(9)">GISELLY</button><button class="btn btn-repassa" onclick="abrir(11)">ANDERSON ARAUJO</button><button class="btn btn-repassa" onclick="abrir(12)">CAROLINE FELIX</button><button class="btn btn-repassa" onclick="abrir(17)">MONICA</button></div>
+      <div class="grupo"><span class="dot dot-recebe"></span>Recebe diferença (verde)</div>
+      <div class="btns"><button class="btn btn-recebe" onclick="abrir(5)">MIRIAM</button></div>
+      <div class="grupo"><span class="dot dot-ok"></span>Valor exato — nada a repassar/receber (cinza)</div>
+      <div class="btns"><button class="btn btn-ok" onclick="abrir(1)">ANDREA</button><button class="btn btn-ok" onclick="abrir(2)">EMILIENE</button><button class="btn btn-ok" onclick="abrir(3)">JESSICA ROCHA</button><button class="btn btn-ok" onclick="abrir(8)">ERIC</button><button class="btn btn-ok" onclick="abrir(10)">KAROLINY BORGES</button><button class="btn btn-ok" onclick="abrir(13)">DAVI LIMA</button><button class="btn btn-ok" onclick="abrir(14)">EVERARDO</button><button class="btn btn-ok" onclick="abrir(15)">GABRIEL GOMES</button><button class="btn btn-ok" onclick="abrir(16)">CHARLES</button><button class="btn btn-ok" onclick="abrir(18)">CACAU</button><button class="btn btn-ok" onclick="abrir(19)">GABRIEL PESSOA</button></div>
+    </div>
+  </div>
+
+  <div class="card equipes">
+    <h2>Equipes — clique para abrir</h2>
+    
+    <details class="eq-collapse">
+      <summary>ANGRA<span class="eq-info">14 vendedores · 104 vidas · devido R$ 1.305,00</span></summary>
+      <div class="eq-body">
+      <table>
+        <thead><tr><th>Vendedor</th><th>Vidas</th><th>R$ por vida</th><th>Parte do vendedor</th><th>Recebido (HAPVIDA)</th><th>Diferença</th><th>Situação</th></tr></thead>
+        <tbody><tr><td>ANDERSON</td><td class='c'>13</td><td class='c'>15</td><td class='r'>R$ 195,00</td><td class='r'>R$ 1.400,00</td><td class='r'>R$ 1.205,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>ANDREA</td><td class='c'>11</td><td class='c'>15</td><td class='r'>R$ 165,00</td><td class='r'>R$ 165,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>BIA</td><td class='c'>8</td><td class='c'>15</td><td class='r'>R$ 120,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 120,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>EMILIENE</td><td class='c'>14</td><td class='c'>15</td><td class='r'>R$ 210,00</td><td class='r'>R$ 210,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>JESSICA ROCHA</td><td class='c'>15</td><td class='c'>15</td><td class='r'>R$ 225,00</td><td class='r'>R$ 225,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>JOKEBEDYA</td><td class='c'>12</td><td class='c'>15</td><td class='r'>R$ 180,00</td><td class='r'>R$ 195,00</td><td class='r'>R$ 15,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>LUANA</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>MIRIAM</td><td class='c'>14</td><td class='c'>15</td><td class='r'>R$ 210,00</td><td class='r'>R$ 195,00</td><td class='r'>R$ 15,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>FRAN CASTRO</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>HYANNA</td><td class='c'>1</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>LARA FABIAN</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>KEYLLA</td><td class='c'>3</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>IANA</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>KARINE GASPAR</td><td class='c'>3</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr>
+          <tr class="total"><td>Total</td><td class="c">104</td><td></td><td class="r">R$ 1.305,00</td><td class="r">R$ 2.390,00</td><td class="r">R$ 1.085,00</td><td></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </details>
+
+    <details class="eq-collapse">
+      <summary>IBIZA<span class="eq-info">15 vendedores · 123 vidas · devido R$ 2.405,00</span></summary>
+      <div class="eq-body">
+      <table>
+        <thead><tr><th>Vendedor</th><th>Vidas</th><th>R$ por vida</th><th>Parte do vendedor</th><th>Recebido (HAPVIDA)</th><th>Diferença</th><th>Situação</th></tr></thead>
+        <tbody><tr><td>IAN</td><td class='c'>7</td><td class='c'>15</td><td class='r'>R$ 105,00</td><td class='r'>R$ 990,00</td><td class='r'>R$ 885,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>CAROLINA SILVA</td><td class='c'>2</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ERBENIA</td><td class='c'>20</td><td class='c'>25</td><td class='r'>R$ 500,00</td><td class='r'>R$ 1.020,00</td><td class='r'>R$ 520,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>ERIC</td><td class='c'>28</td><td class='c'>30</td><td class='r'>R$ 840,00</td><td class='r'>R$ 840,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>GISELLY</td><td class='c'>11</td><td class='c'>15</td><td class='r'>R$ 165,00</td><td class='r'>R$ 180,00</td><td class='r'>R$ 15,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>IAGO</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>KARINY</td><td class='c'>10</td><td class='c'>15</td><td class='r'>R$ 150,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 150,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>KAROLINY BORGES</td><td class='c'>14</td><td class='c'>15</td><td class='r'>R$ 210,00</td><td class='r'>R$ 210,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>VANESSA VIANA</td><td class='c'>14</td><td class='c'>15</td><td class='r'>R$ 210,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 210,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>CLAUDIA CARNEIRO</td><td class='c'>1</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ITALO ALVES</td><td class='c'>8</td><td class='c'>15</td><td class='r'>R$ 120,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 120,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>CAROL SANTOS</td><td class='c'>7</td><td class='c'>15</td><td class='r'>R$ 105,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 105,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>ANA CLARA NASCIMENTO</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>RAFAELA DE SOUSA</td><td class='c'>1</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>JHENYFER</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr>
+          <tr class="total"><td>Total</td><td class="c">123</td><td></td><td class="r">R$ 2.405,00</td><td class="r">R$ 3.240,00</td><td class="r">R$ 835,00</td><td></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </details>
+
+    <details class="eq-collapse">
+      <summary>BORA BORA<span class="eq-info">17 vendedores · 82 vidas · devido R$ 870,00</span></summary>
+      <div class="eq-body">
+      <table>
+        <thead><tr><th>Vendedor</th><th>Vidas</th><th>R$ por vida</th><th>Parte do vendedor</th><th>Recebido (HAPVIDA)</th><th>Diferença</th><th>Situação</th></tr></thead>
+        <tbody><tr><td>ANDERSON ARAUJO</td><td class='c'>11</td><td class='c'>15</td><td class='r'>R$ 165,00</td><td class='r'>R$ 930,00</td><td class='r'>R$ 765,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>ANA CLARA</td><td class='c'>2</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ANA KARLA</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>CAROLINE FELIX</td><td class='c'>6</td><td class='c'>15</td><td class='r'>R$ 90,00</td><td class='r'>R$ 165,00</td><td class='r'>R$ 75,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>CLARISSE TORQUATO</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>DAVI LIMA</td><td class='c'>8</td><td class='c'>15</td><td class='r'>R$ 120,00</td><td class='r'>R$ 120,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>EVERARDO</td><td class='c'>7</td><td class='c'>15</td><td class='r'>R$ 105,00</td><td class='r'>R$ 105,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>GABRIEL GOMES</td><td class='c'>12</td><td class='c'>15</td><td class='r'>R$ 180,00</td><td class='r'>R$ 180,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>MARDO</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>VICTOR FIRMINO</td><td class='c'>2</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ALCIONE MARQUES</td><td class='c'>1</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>LENNY DOMINGOS</td><td class='c'>4</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>AGATHA</td><td class='c'>3</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>CHARLES</td><td class='c'>14</td><td class='c'>15</td><td class='r'>R$ 210,00</td><td class='r'>R$ 210,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>CECILIA</td><td class='c'>2</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>IARA</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ARIANE</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr>
+          <tr class="total"><td>Total</td><td class="c">82</td><td></td><td class="r">R$ 870,00</td><td class="r">R$ 1.710,00</td><td class="r">R$ 840,00</td><td></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </details>
+
+    <details class="eq-collapse">
+      <summary>FERNANDO DE NORONHA<span class="eq-info">12 vendedores · 76 vidas · devido R$ 1.040,00</span></summary>
+      <div class="eq-body">
+      <table>
+        <thead><tr><th>Vendedor</th><th>Vidas</th><th>R$ por vida</th><th>Parte do vendedor</th><th>Recebido (HAPVIDA)</th><th>Diferença</th><th>Situação</th></tr></thead>
+        <tbody><tr><td>MONICA</td><td class='c'>20</td><td class='c'>25</td><td class='r'>R$ 500,00</td><td class='r'>R$ 1.600,00</td><td class='r'>R$ 1.100,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>CACAU</td><td class='c'>13</td><td class='c'>15</td><td class='r'>R$ 195,00</td><td class='r'>R$ 195,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>CARLOS HENRIQUE</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>DARLISON</td><td class='c'>3</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>EMERSON</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>GABRIEL PESSOA</td><td class='c'>15</td><td class='c'>15</td><td class='r'>R$ 225,00</td><td class='r'>R$ 225,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>RAYSSA SILVA</td><td class='c'>8</td><td class='c'>15</td><td class='r'>R$ 120,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 120,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>REGINALDO</td><td class='c'>3</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ELLEN GADELHA</td><td class='c'>4</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>VAL PIRES</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>AMANDA BEATRIZ</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>MARIA GRAZIELA</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr>
+          <tr class="total"><td>Total</td><td class="c">76</td><td></td><td class="r">R$ 1.040,00</td><td class="r">R$ 2.020,00</td><td class="r">R$ 980,00</td><td></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Quem precisa repassar (laranja)</h2>
+    <div class="cards-grid">
+    <div class="mini">
+      <div class="mini-h">ANDERSON <span>ANGRA</span></div>
+      <table>
+        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 1.400,00</td></tr>
+        <tr><td>Parte do vendedor</td><td class="r">R$ 195,00</td></tr>
+        <tr><td>Vidas / R$ por vida</td><td class="r">13 vidas / R$ 15,00</td></tr>
+        <tr class="total"><td>Repassa</td><td class="r neg">R$ 1.205,00</td></tr>
+      </table>
+      <div class="mini-envia">Envia para:</div>
+      <table class="mini-pag">
+        <tr><td>BIA</td><td class="r">R$ 120,00</td></tr><tr><td>CORRETORA</td><td class="r">R$ 1.085,00</td></tr>
+      </table>
+    </div>
+    <div class="mini">
+      <div class="mini-h">JOKEBEDYA <span>ANGRA</span></div>
+      <table>
+        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 195,00</td></tr>
+        <tr><td>Parte do vendedor</td><td class="r">R$ 180,00</td></tr>
+        <tr><td>Vidas / R$ por vida</td><td class="r">12 vidas / R$ 15,00</td></tr>
+        <tr class="total"><td>Repassa</td><td class="r neg">R$ 15,00</td></tr>
+      </table>
+      <div class="mini-envia">Envia para:</div>
+      <table class="mini-pag">
+        <tr><td>MIRIAM</td><td class="r">R$ 15,00</td></tr>
+      </table>
+    </div>
+    <div class="mini">
+      <div class="mini-h">IAN <span>IBIZA</span></div>
+      <table>
+        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 990,00</td></tr>
+        <tr><td>Parte do vendedor</td><td class="r">R$ 105,00</td></tr>
+        <tr><td>Vidas / R$ por vida</td><td class="r">7 vidas / R$ 15,00</td></tr>
+        <tr class="total"><td>Repassa</td><td class="r neg">R$ 885,00</td></tr>
+      </table>
+      <div class="mini-envia">Envia para:</div>
+      <table class="mini-pag">
+        <tr><td>KARINY</td><td class="r">R$ 150,00</td></tr><tr><td>VANESSA VIANA</td><td class="r">R$ 210,00</td></tr><tr><td>ITALO ALVES</td><td class="r">R$ 120,00</td></tr><tr><td>CAROL SANTOS</td><td class="r">R$ 105,00</td></tr><tr><td>CORRETORA</td><td class="r">R$ 300,00</td></tr>
+      </table>
+    </div>
+    <div class="mini">
+      <div class="mini-h">ERBENIA <span>IBIZA</span></div>
+      <table>
+        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 1.020,00</td></tr>
+        <tr><td>Parte do vendedor</td><td class="r">R$ 500,00</td></tr>
+        <tr><td>Vidas / R$ por vida</td><td class="r">20 vidas / R$ 25,00</td></tr>
+        <tr class="total"><td>Repassa</td><td class="r neg">R$ 520,00</td></tr>
+      </table>
+      <div class="mini-envia">Envia para:</div>
+      <table class="mini-pag">
+        <tr><td>CORRETORA</td><td class="r">R$ 520,00</td></tr>
+      </table>
+    </div>
+    <div class="mini">
+      <div class="mini-h">GISELLY <span>IBIZA</span></div>
+      <table>
+        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 180,00</td></tr>
+        <tr><td>Parte do vendedor</td><td class="r">R$ 165,00</td></tr>
+        <tr><td>Vidas / R$ por vida</td><td class="r">11 vidas / R$ 15,00</td></tr>
+        <tr class="total"><td>Repassa</td><td class="r neg">R$ 15,00</td></tr>
+      </table>
+      <div class="mini-envia">Envia para:</div>
+      <table class="mini-pag">
+        <tr><td>CLAUDIA CARNEIRO</td><td class="r">R$ 15,00</td></tr>
+      </table>
+    </div>
+    <div class="mini">
+      <div class="mini-h">ANDERSON ARAUJO <span>BORA BORA</span></div>
+      <table>
+        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 930,00</td></tr>
+        <tr><td>Parte do vendedor</td><td class="r">R$ 165,00</td></tr>
+        <tr><td>Vidas / R$ por vida</td><td class="r">11 vidas / R$ 15,00</td></tr>
+        <tr class="total"><td>Repassa</td><td class="r neg">R$ 765,00</td></tr>
+      </table>
+      <div class="mini-envia">Envia para:</div>
+      <table class="mini-pag">
+        <tr><td>CORRETORA</td><td class="r">R$ 765,00</td></tr>
+      </table>
+    </div>
+    <div class="mini">
+      <div class="mini-h">CAROLINE FELIX <span>BORA BORA</span></div>
+      <table>
+        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 165,00</td></tr>
+        <tr><td>Parte do vendedor</td><td class="r">R$ 90,00</td></tr>
+        <tr><td>Vidas / R$ por vida</td><td class="r">6 vidas / R$ 15,00</td></tr>
+        <tr class="total"><td>Repassa</td><td class="r neg">R$ 75,00</td></tr>
+      </table>
+      <div class="mini-envia">Envia para:</div>
+      <table class="mini-pag">
+        <tr><td>CORRETORA</td><td class="r">R$ 75,00</td></tr>
+      </table>
+    </div>
+    <div class="mini">
+      <div class="mini-h">MONICA <span>FERNANDO DE NORONHA</span></div>
+      <table>
+        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 1.600,00</td></tr>
+        <tr><td>Parte do vendedor</td><td class="r">R$ 500,00</td></tr>
+        <tr><td>Vidas / R$ por vida</td><td class="r">20 vidas / R$ 25,00</td></tr>
+        <tr class="total"><td>Repassa</td><td class="r neg">R$ 1.100,00</td></tr>
+      </table>
+      <div class="mini-envia">Envia para:</div>
+      <table class="mini-pag">
+        <tr><td>RAYSSA SILVA</td><td class="r">R$ 120,00</td></tr><tr><td>CORRETORA</td><td class="r">R$ 980,00</td></tr>
+      </table>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <details class="repass-section">
+      <summary>1) Repasses diretos — quem envia para quem (por equipe)</summary>
+      <div class="rep-body">
+      <table>
+        <thead><tr><th>Quem recebeu (HAPVIDA)</th><th>Equipe</th><th>Envia para</th><th>Valor</th></tr></thead>
+        <tbody><tr><td>ANDERSON</td><td class='c'>ANGRA</td><td>BIA</td><td class='r'>R$ 120,00</td></tr><tr><td>ANDERSON</td><td class='c'>ANGRA</td><td>CORRETORA</td><td class='r'>R$ 1.085,00</td></tr><tr><td>JOKEBEDYA</td><td class='c'>ANGRA</td><td>MIRIAM</td><td class='r'>R$ 15,00</td></tr><tr><td>IAN</td><td class='c'>IBIZA</td><td>KARINY</td><td class='r'>R$ 150,00</td></tr><tr><td>IAN</td><td class='c'>IBIZA</td><td>VANESSA VIANA</td><td class='r'>R$ 210,00</td></tr><tr><td>IAN</td><td class='c'>IBIZA</td><td>ITALO ALVES</td><td class='r'>R$ 120,00</td></tr><tr><td>IAN</td><td class='c'>IBIZA</td><td>CAROL SANTOS</td><td class='r'>R$ 105,00</td></tr><tr><td>IAN</td><td class='c'>IBIZA</td><td>CORRETORA</td><td class='r'>R$ 300,00</td></tr><tr><td>ERBENIA</td><td class='c'>IBIZA</td><td>CORRETORA</td><td class='r'>R$ 520,00</td></tr><tr><td>GISELLY</td><td class='c'>IBIZA</td><td>CLAUDIA CARNEIRO</td><td class='r'>R$ 15,00</td></tr><tr><td>ANDERSON ARAUJO</td><td class='c'>BORA BORA</td><td>CORRETORA</td><td class='r'>R$ 765,00</td></tr><tr><td>CAROLINE FELIX</td><td class='c'>BORA BORA</td><td>CORRETORA</td><td class='r'>R$ 75,00</td></tr><tr><td>MONICA</td><td class='c'>FERNANDO DE NORONHA</td><td>RAYSSA SILVA</td><td class='r'>R$ 120,00</td></tr><tr><td>MONICA</td><td class='c'>FERNANDO DE NORONHA</td><td>CORRETORA</td><td class='r'>R$ 980,00</td></tr>
+          <tr class="total"><td colspan="3">TOTAL REPASSADO</td><td class="r">R$ 4.580,00</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <details class="repass-section">
+      <summary>2) Quem recebe — e de quem (repasses diretos)</summary>
+      <div class="rep-body">
+      <table>
+        <thead><tr><th>Quem recebe</th><th>Equipe</th><th>Recebe de</th><th>Valor</th></tr></thead>
+        <tbody><tr><td>BIA</td><td class='c'>ANGRA</td><td>ANDERSON</td><td class='r'>R$ 120,00</td></tr><tr><td>MIRIAM</td><td class='c'>ANGRA</td><td>JOKEBEDYA</td><td class='r'>R$ 15,00</td></tr><tr><td>KARINY</td><td class='c'>IBIZA</td><td>IAN</td><td class='r'>R$ 150,00</td></tr><tr><td>VANESSA VIANA</td><td class='c'>IBIZA</td><td>IAN</td><td class='r'>R$ 210,00</td></tr><tr><td>ITALO ALVES</td><td class='c'>IBIZA</td><td>IAN</td><td class='r'>R$ 120,00</td></tr><tr><td>CAROL SANTOS</td><td class='c'>IBIZA</td><td>IAN</td><td class='r'>R$ 105,00</td></tr><tr><td>CLAUDIA CARNEIRO</td><td class='c'>IBIZA</td><td>GISELLY</td><td class='r'>R$ 15,00</td></tr><tr><td>RAYSSA SILVA</td><td class='c'>FERNANDO DE NORONHA</td><td>MONICA</td><td class='r'>R$ 120,00</td></tr>
+          <tr class="total"><td colspan="3">TOTAL PAGO AOS VENDEDORES</td><td class="r">R$ 855,00</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>3) Fechamento</h2>
+    <table>
+      <tbody>
+        <tr><td>Total repassado pelos que receberam a mais</td><td class="r">R$ 4.580,00</td></tr>
+        <tr><td>(–) Pagamentos diretos aos vendedores</td><td class="r">R$ 855,00</td></tr>
+        <tr class="total"><td>Superávit que fica com a CORRETORA</td><td class="r">R$ 3.725,00</td></tr>
+      </tbody>
+    </table>
+    <div class="nota">Conferência: R$ 4.580,00 – R$ 855,00 = R$ 3.725,00</div>
+  </div>
+
+  <div id="overlay" class="overlay" onclick="fechar()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="fechar" onclick="fechar()">&times;</button>
+      <h2 id="m-nome"></h2>
+      <table>
+        <tr><td>Equipe</td><td class="r" id="m-equipe"></td></tr>
+        <tr><td>Vidas atuais</td><td class="r" id="m-vidas"></td></tr>
+        <tr><td>R$ por vida</td><td class="r" id="m-vpv"></td></tr>
+        <tr><td>Recebeu (HAPVIDA)</td><td class="r" id="m-recebido"></td></tr>
+        <tr><td>Parte do vendedor</td><td class="r" id="m-devido"></td></tr>
+        <tr><td>Diferença</td><td class="r destaque" id="m-dif"></td></tr>
+      </table>
+      <div id="m-pag-hdr" class="pag-hdr"></div>
+      <table id="m-pag" class="pag-tab"></table>
+    </div>
+  </div>
+
+  <div id="overlay2" class="overlay" onclick="fecharLista()">
+    <div class="modal lista" onclick="event.stopPropagation()">
+      <button class="fechar" onclick="fecharLista()">&times;</button>
+      <h2>Lista completa de valores</h2>
+      <h3>Recebem diretamente (destaque)</h3>
+      <table>
+        <thead><tr class="list-hd"><th>Vendedor</th><th>Vidas</th><th>Valor por vida</th><th>Total</th></tr></thead>
+        <tbody id="l-diretos"></tbody>
+      </table>
+      <h3>Todos os vendedores</h3>
+      <table>
+        <thead><tr><th>Vendedor</th><th>Equipe</th><th>Vidas</th><th>Valor por vida</th><th>Total</th></tr></thead>
+        <tbody id="l-todos"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const dados = [["ANDERSON", "ANGRA", 13, 15, 195, 1400, -1205, [["BIA", 120], ["CORRETORA", 1085]]], ["ANDREA", "ANGRA", 11, 15, 165, 165, 0, []], ["EMILIENE", "ANGRA", 14, 15, 210, 210, 0, []], ["JESSICA ROCHA", "ANGRA", 15, 15, 225, 225, 0, []], ["JOKEBEDYA", "ANGRA", 12, 15, 180, 195, -15, [["MIRIAM", 15]]], ["MIRIAM", "ANGRA", 14, 15, 210, 195, 15, []], ["IAN", "IBIZA", 7, 15, 105, 990, -885, [["KARINY", 150], ["VANESSA VIANA", 210], ["ITALO ALVES", 120], ["CAROL SANTOS", 105], ["CORRETORA", 300]]], ["ERBENIA", "IBIZA", 20, 25, 500, 1020, -520, [["CORRETORA", 520]]], ["ERIC", "IBIZA", 28, 30, 840, 840, 0, []], ["GISELLY", "IBIZA", 11, 15, 165, 180, -15, [["CLAUDIA CARNEIRO", 15]]], ["KAROLINY BORGES", "IBIZA", 14, 15, 210, 210, 0, []], ["ANDERSON ARAUJO", "BORA BORA", 11, 15, 165, 930, -765, [["CORRETORA", 765]]], ["CAROLINE FELIX", "BORA BORA", 6, 15, 90, 165, -75, [["CORRETORA", 75]]], ["DAVI LIMA", "BORA BORA", 8, 15, 120, 120, 0, []], ["EVERARDO", "BORA BORA", 7, 15, 105, 105, 0, []], ["GABRIEL GOMES", "BORA BORA", 12, 15, 180, 180, 0, []], ["CHARLES", "BORA BORA", 14, 15, 210, 210, 0, []], ["MONICA", "FERNANDO DE NORONHA", 20, 25, 500, 1600, -1100, [["RAYSSA SILVA", 120], ["CORRETORA", 980]]], ["CACAU", "FERNANDO DE NORONHA", 13, 15, 195, 195, 0, []], ["GABRIEL PESSOA", "FERNANDO DE NORONHA", 15, 15, 225, 225, 0, []]];
+    function real(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
+    function abrir(i) {
+      const d = dados[i];
+      document.getElementById('m-nome').textContent = d[0];
+      document.getElementById('m-equipe').textContent = d[1];
+      document.getElementById('m-vidas').textContent = d[2];
+      document.getElementById('m-vpv').textContent = 'R$ ' + d[3].toFixed(2).replace('.', ',');
+      document.getElementById('m-recebido').textContent = real(d[5]);
+      document.getElementById('m-devido').textContent = real(d[4]);
+      const difEl = document.getElementById('m-dif');
+      const hdr = document.getElementById('m-pag-hdr');
+      const pagTab = document.getElementById('m-pag');
+      pagTab.innerHTML = '';
+      hdr.textContent = '';
+      if (d[6] < 0) {
+        difEl.textContent = real(-d[6]) + ' a repassar';
+        difEl.className = 'r destaque neg';
+        hdr.textContent = 'Envia para:';
+        hdr.className = 'pag-hdr';
+        let tot = 0;
+        pagTab.innerHTML = '<tr class="tot1"><th>Quem</th><th>Valor</th></tr>';
+        for (const p of d[7]) {
+          tot += p[1];
+          const row = document.createElement('tr');
+          if (p[0] === 'CORRETORA') {
+            row.innerHTML = '<td>' + p[0] + '</td><td class="r neg">' + real(p[1]) + '</td>';
+          } else {
+            row.innerHTML = '<td>' + p[0] + '</td><td class="r">' + real(p[1]) + '</td>';
+          }
+          pagTab.appendChild(row);
+        }
+        const tr = document.createElement('tr');
+        tr.className = 'total';
+        tr.innerHTML = '<td>TOTAL</td><td class="r">' + real(tot) + '</td>';
+        pagTab.appendChild(tr);
+      } else if (d[6] > 0) {
+        difEl.textContent = real(d[6]);
+        difEl.className = 'r destaque pos';
+        hdr.textContent = 'Recebe a diferença de:';
+        hdr.className = 'pag-hdr';
+        pagTab.innerHTML = '<tr><td>CORRETORA</td><td class="r pos">' + real(d[6]) + '</td></tr>';
+      } else {
+        difEl.textContent = 'R$ 0,00';
+        difEl.className = 'r destaque';
+        hdr.textContent = 'Recebeu exatamente o devido — nada a repassar nem receber.';
+        hdr.className = 'nota';
+      }
+      document.getElementById('overlay').style.display = 'flex';
+    }
+    function fechar() { document.getElementById('overlay').style.display = 'none'; }
+
+    const listaTodos = [["ANDERSON", "ANGRA", 13, 15, 195], ["ANDREA", "ANGRA", 11, 15, 165], ["BIA", "ANGRA", 8, 15, 120], ["EMILIENE", "ANGRA", 14, 15, 210], ["JESSICA ROCHA", "ANGRA", 15, 15, 225], ["JOKEBEDYA", "ANGRA", 12, 15, 180], ["LUANA", "ANGRA", 5, 0, 0], ["MIRIAM", "ANGRA", 14, 15, 210], ["FRAN CASTRO", "ANGRA", 0, 0, 0], ["HYANNA", "ANGRA", 1, 0, 0], ["LARA FABIAN", "ANGRA", 5, 0, 0], ["KEYLLA", "ANGRA", 3, 0, 0], ["IANA", "ANGRA", 0, 0, 0], ["KARINE GASPAR", "ANGRA", 3, 0, 0], ["IAN", "IBIZA", 7, 15, 105], ["CAROLINA SILVA", "IBIZA", 2, 0, 0], ["ERBENIA", "IBIZA", 20, 25, 500], ["ERIC", "IBIZA", 28, 30, 840], ["GISELLY", "IBIZA", 11, 15, 165], ["IAGO", "IBIZA", 0, 0, 0], ["KARINY", "IBIZA", 10, 15, 150], ["KAROLINY BORGES", "IBIZA", 14, 15, 210], ["VANESSA VIANA", "IBIZA", 14, 15, 210], ["CLAUDIA CARNEIRO", "IBIZA", 1, 0, 0], ["ITALO ALVES", "IBIZA", 8, 15, 120], ["CAROL SANTOS", "IBIZA", 7, 15, 105], ["ANA CLARA NASCIMENTO", "IBIZA", 0, 0, 0], ["RAFAELA DE SOUSA", "IBIZA", 1, 0, 0], ["JHENYFER", "IBIZA", 0, 0, 0], ["ANDERSON ARAUJO", "BORA BORA", 11, 15, 165], ["ANA CLARA", "BORA BORA", 2, 0, 0], ["ANA KARLA", "BORA BORA", 0, 0, 0], ["CAROLINE FELIX", "BORA BORA", 6, 15, 90], ["CLARISSE TORQUATO", "BORA BORA", 0, 0, 0], ["DAVI LIMA", "BORA BORA", 8, 15, 120], ["EVERARDO", "BORA BORA", 7, 15, 105], ["GABRIEL GOMES", "BORA BORA", 12, 15, 180], ["MARDO", "BORA BORA", 5, 0, 0], ["VICTOR FIRMINO", "BORA BORA", 2, 0, 0], ["ALCIONE MARQUES", "BORA BORA", 1, 0, 0], ["LENNY DOMINGOS", "BORA BORA", 4, 0, 0], ["AGATHA", "BORA BORA", 3, 0, 0], ["CHARLES", "BORA BORA", 14, 15, 210], ["CECILIA", "BORA BORA", 2, 0, 0], ["IARA", "BORA BORA", 0, 0, 0], ["ARIANE", "BORA BORA", 5, 0, 0], ["MONICA", "FERNANDO DE NORONHA", 20, 25, 500], ["CACAU", "FERNANDO DE NORONHA", 13, 15, 195], ["CARLOS HENRIQUE", "FERNANDO DE NORONHA", 0, 0, 0], ["DARLISON", "FERNANDO DE NORONHA", 3, 0, 0], ["EMERSON", "FERNANDO DE NORONHA", 5, 0, 0], ["GABRIEL PESSOA", "FERNANDO DE NORONHA", 15, 15, 225], ["RAYSSA SILVA", "FERNANDO DE NORONHA", 8, 15, 120], ["REGINALDO", "FERNANDO DE NORONHA", 3, 0, 0], ["ELLEN GADELHA", "FERNANDO DE NORONHA", 4, 0, 0], ["VAL PIRES", "FERNANDO DE NORONHA", 5, 0, 0], ["AMANDA BEATRIZ", "FERNANDO DE NORONHA", 0, 0, 0], ["MARIA GRAZIELA", "FERNANDO DE NORONHA", 0, 0, 0]];
+    const listaDiretos = [["MARA", 23, 25, 575], ["CAROLI", 8, 15, 120], ["RC CORRETORA", 6, 15, 90], ["REGIS", 16, 15, 240], ["GLAUCIANE", 30, 30, 900], ["NEILIANE", 16, 15, 240]];
+
+    function abrirLista() {
+      const dir = document.getElementById('l-diretos');
+      const todos = document.getElementById('l-todos');
+      let h = '';
+      let sumDir = 0;
+      for (const d of listaDiretos) {
+        sumDir += d[3];
+        h += '<tr class="dir"><td>' + d[0] + '</td><td class="c">' + d[1] + '</td><td class="c">' + real(d[2]) + '</td><td class="r">' + real(d[3]) + '</td></tr>';
+      }
+      h += '<tr class="total"><td colspan="3">TOTAL</td><td class="r">' + real(sumDir) + '</td></tr>';
+      dir.innerHTML = h;
+
+      let t = '';
+      let sumTot = 0;
+      for (const d of listaTodos) {
+        sumTot += d[4];
+        t += '<tr><td>' + d[0] + '</td><td class="c">' + d[1] + '</td><td class="c">' + d[2] + '</td><td class="c">' + real(d[3]) + '</td><td class="r">' + real(d[4]) + '</td></tr>';
+      }
+      t += '<tr class="total"><td colspan="4">TOTAL</td><td class="r">' + real(sumTot) + '</td></tr>';
+      todos.innerHTML = t;
+      document.getElementById('overlay2').style.display = 'flex';
+    }
+    function fecharLista() { document.getElementById('overlay2').style.display = 'none'; }
+  </script>
+</body>
+</html>
