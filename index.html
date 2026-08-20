@@ -111,6 +111,12 @@
   tr.dir td { background: #fdf0e3 !important; font-weight: 600; }
   tr.dir td:first-child { color: #e65100; }
   tr.cred-zero td { background: #fdecea; color: #9a2a2a; }
+  .modal.lista table.todos { table-layout: fixed; }
+  .modal.lista table.todos th:nth-child(1), .modal.lista table.todos td:nth-child(1) { width: 32%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .modal.lista table.todos th:nth-child(2), .modal.lista table.todos td:nth-child(2) { width: 18%; }
+  .modal.lista table.todos th:nth-child(3), .modal.lista table.todos td:nth-child(3) { width: 12%; }
+  .modal.lista table.todos th:nth-child(4), .modal.lista table.todos td:nth-child(4) { width: 16%; }
+  .modal.lista table.todos th:nth-child(5), .modal.lista table.todos td:nth-child(5) { width: 22%; }
   .grupo { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #455a64; margin: 10px 0 6px; }
   .grupo:first-of-type { margin-top: 0; }
   .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
@@ -402,7 +408,7 @@
         <tbody id="l-diretos"></tbody>
       </table>
       <h3>Todos os vendedores</h3>
-      <table>
+      <table class="todos">
         <thead><tr><th>Vendedor</th><th>Equipe</th><th>Vidas</th><th>Valor por vida</th><th>Total</th></tr></thead>
         <tbody id="l-todos"></tbody>
       </table>
