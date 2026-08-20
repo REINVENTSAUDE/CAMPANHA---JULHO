@@ -16,6 +16,7 @@
   .card-total .value.green { color: #2e7d32; }
   .card-total .value.blue { color: #1976d2; }
   .card-total .value.orange { color: #e65100; }
+  .card-total .value.gold { color: #b8860b; }
   .card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow-x: auto; }
   h2 { font-size: 16px; margin-bottom: 12px; color: #1f2d3d; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -97,6 +98,7 @@
   .modal.lista { width: 580px; max-width: 95vw; max-height: 84vh; overflow-y: auto; }
   .modal.lista h3 { font-size: 13px; margin: 14px 0 6px; color: #1f2d3d; }
   .list-hd { background: #1976d2; color: #fff; }
+  .lista-geral { background: #eef4fb; border: 1px solid #b9d2ef; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 700; color: #1f2d3d; margin-top: 8px; }
   tr.dir td { background: #fdf0e3 !important; font-weight: 600; }
   tr.dir td:first-child { color: #e65100; }
   .grupo { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #455a64; margin: 10px 0 6px; }
@@ -125,8 +127,9 @@
   <div class="sub">Escala de vidas aplicada às vidas atuais &bull; Valores recebidos (HAPVIDA) confrontados com o devido</div>
 
   <div class="cards">
-    <div class="card-total"><div class="label">Total recebido (HAPVIDA)</div><div class="value blue">R$ 9.360,00</div></div>
-    <div class="card-total"><div class="label">Total devido aos vendedores</div><div class="value green">R$ 5.620,00</div></div>
+    <div class="card-total"><div class="label">Total recebido (HAPVIDA)</div><div class="value blue">R$ 11.525,00</div></div>
+    <div class="card-total"><div class="label">Recebem direto (6)</div><div class="value gold">R$ 2.165,00</div></div>
+    <div class="card-total"><div class="label">Parte dos vendedores</div><div class="value green">R$ 5.620,00</div></div>
     <div class="card-total"><div class="label">Superávit → CORRETORA</div><div class="value orange">R$ 3.725,00</div></div>
   </div>
 
@@ -379,6 +382,7 @@
     <div class="modal lista" onclick="event.stopPropagation()">
       <button class="fechar" onclick="fecharLista()">&times;</button>
       <h2>Lista completa de valores</h2>
+      <div id="l-geral" class="lista-geral"></div>
       <h3>Recebem diretamente (destaque)</h3>
       <table>
         <thead><tr class="list-hd"><th>Vendedor</th><th>Vidas</th><th>Valor por vida</th><th>Total</th></tr></thead>
@@ -468,6 +472,7 @@
       }
       t += '<tr class="total"><td colspan="4">TOTAL</td><td class="r">' + real(sumTot) + '</td></tr>';
       todos.innerHTML = t;
+      document.getElementById('l-geral').innerHTML = 'Total HAPVIDA: ' + real(11525) + ' = direto ' + real(sumDir) + ' + vendedores ' + real(sumTot) + ' + exceção CLAUDIA ' + real(15) + ' + superávit CORRETORA ' + real(3725);
       document.getElementById('overlay2').style.display = 'flex';
     }
     function fecharLista() { document.getElementById('overlay2').style.display = 'none'; }
