@@ -67,6 +67,29 @@
   details.repass-section .rep-body { padding: 0 16px 14px; overflow-x: auto; }
   @media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 600px) { .cards-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) {
+    body { padding: 10px; }
+    h1 { font-size: 17px; }
+    .sub { font-size: 11px; }
+    .cards { flex-direction: column; gap: 8px; }
+    .card-total { min-width: 0; padding: 12px 14px; }
+    .card-total .value { font-size: 18px; }
+    .card { padding: 12px; border-radius: 8px; }
+    h2 { font-size: 14px; }
+    .row { flex-direction: column; }
+    .card.narrow { width: 100%; }
+    .card.recebedores { width: 100%; }
+    .btn-lista { display: block; width: 100%; margin: 8px 0 0; }
+    .btns { gap: 6px; }
+    .btn { padding: 8px 11px; font-size: 11px; flex: 1 1 auto; }
+    .overlay { align-items: flex-end; padding-bottom: 12px; }
+    .modal { width: 96vw; max-width: 96vw; padding: 16px; max-height: 88vh; overflow-y: auto; }
+    .modal.lista { width: 96vw; }
+    .mini-h span { float: none; display: block; margin-top: 2px; }
+    details.eq-collapse summary { padding: 11px 12px; font-size: 12.5px; flex-direction: column; align-items: flex-start; gap: 4px; }
+    .eq-info { font-size: 11px; }
+    .rep-body { padding: 0 10px 10px; }
+  }
   .row { display: flex; gap: 16px; align-items: flex-start; }
   .card.narrow { flex: 0 0 auto; }
   .card.recebedores { flex: 1 1 auto; min-width: 0; }
