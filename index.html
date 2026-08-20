@@ -7,8 +7,10 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #1f2d3d; padding: 24px; }
+  body::before { content: ''; position: fixed; inset: 0; background: url('icon.png') center center / cover no-repeat; opacity: 0.08; z-index: -1; pointer-events: none; }
   h1 { font-size: 22px; margin-bottom: 4px; }
   .sub { color: #6b7785; margin-bottom: 20px; font-size: 13px; }
+  .logo { display: block; height: 90px; width: auto; margin: 2px auto 10px; }
   .cards { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
   .card-total { flex: 1; min-width: 200px; background: #fff; border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
   .card-total .label { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #6b7785; }
@@ -77,6 +79,7 @@
     .card-total .value { font-size: 18px; }
     .card { padding: 12px; border-radius: 8px; }
     h2 { font-size: 14px; }
+    .logo { height: 64px; }
     .row { flex-direction: column; }
     .card.narrow { width: 100%; }
     .card.recebedores { width: 100%; }
@@ -123,6 +126,7 @@
 </style>
 </head>
 <body>
+  <img class="logo" src="logo.png" alt="Logo">
   <h1>Campanha Vendas Julho - HAPVIDA</h1>
   <div class="sub">Escala de vidas aplicada às vidas atuais &bull; Valores recebidos (HAPVIDA) confrontados com o devido</div>
 
