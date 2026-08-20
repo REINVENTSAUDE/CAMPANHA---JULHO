@@ -110,6 +110,7 @@
   .lista-geral { background: #eef4fb; border: 1px solid #b9d2ef; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 700; color: #1f2d3d; margin-top: 8px; }
   tr.dir td { background: #fdf0e3 !important; font-weight: 600; }
   tr.dir td:first-child { color: #e65100; }
+  tr.cred-zero td { background: #fdecea; color: #9a2a2a; }
   .grupo { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #455a64; margin: 10px 0 6px; }
   .grupo:first-of-type { margin-top: 0; }
   .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
@@ -496,8 +497,10 @@
       let t = '';
       let sumTot = 0;
       for (const d of listaTodos) {
+        const eq = d[1] === 'FERNANDO DE NORONHA' ? 'NORONHA' : d[1];
+        const cls = d[4] === 0 ? ' class="cred-zero"' : '';
         sumTot += d[4];
-        t += '<tr><td>' + d[0] + '</td><td class="c">' + d[1] + '</td><td class="c">' + d[2] + '</td><td class="c">' + real(d[3]) + '</td><td class="r">' + real(d[4]) + '</td></tr>';
+        t += '<tr' + cls + '><td>' + d[0] + '</td><td class="c">' + eq + '</td><td class="c">' + d[2] + '</td><td class="c">' + real(d[3]) + '</td><td class="r">' + real(d[4]) + '</td></tr>';
       }
       t += '<tr class="total"><td colspan="4">TOTAL</td><td class="r">' + real(sumTot) + '</td></tr>';
       todos.innerHTML = t;
