@@ -38,6 +38,7 @@
   .btn-repassa { background: #e65100; }
   .btn-recebe { background: #2e7d32; }
   .btn-ok { background: #607d8b; }
+  .btn-azul { background: #64b5f6; color: #0d2740; }
   .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
   .overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.55); align-items: center; justify-content: center; z-index: 10; }
   .modal { background: #fff; border-radius: 12px; padding: 24px 28px; width: 380px; max-width: 92vw; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
@@ -110,6 +111,7 @@
   .dot-repassa { background: #e65100; }
   .dot-recebe { background: #2e7d32; }
   .dot-ok { background: #607d8b; }
+  .dot-azul { background: #64b5f6; }
   .card.narrow table { min-width: 280px; }
   .card.resumo { flex: 1 1 auto; min-width: 480px; }
   .card.equipes { padding: 6px 18px; }
@@ -154,11 +156,13 @@
     </div>
 
     <div class="card recebedores">
-      <h2>Recebedores (HAPVIDA) — clique para ver os valores <button class="btn btn-lista" onclick="abrirLista()">Lista completa de valores</button></h2>
+      <h2>Recebedores — clique para ver os valores <button class="btn btn-lista" onclick="abrirLista()">Lista completa de valores</button></h2>
       <div class="grupo"><span class="dot dot-repassa"></span>Repassa excedente (laranja)</div>
       <div class="btns"><button class="btn btn-repassa" onclick="abrir(0)">ANDERSON</button><button class="btn btn-repassa" onclick="abrir(4)">JOKEBEDYA</button><button class="btn btn-repassa" onclick="abrir(6)">IAN</button><button class="btn btn-repassa" onclick="abrir(7)">ERBENIA</button><button class="btn btn-repassa" onclick="abrir(9)">GISELLY</button><button class="btn btn-repassa" onclick="abrir(11)">ANDERSON ARAUJO</button><button class="btn btn-repassa" onclick="abrir(12)">CAROLINE FELIX</button><button class="btn btn-repassa" onclick="abrir(17)">MONICA</button></div>
       <div class="grupo"><span class="dot dot-recebe"></span>Recebe diferença (verde)</div>
       <div class="btns"><button class="btn btn-recebe" onclick="abrir(5)">MIRIAM</button></div>
+      <div class="grupo"><span class="dot dot-azul"></span>Recebe sem ter recebido do HAPVIDA (azul claro)</div>
+      <div class="btns"><button class="btn btn-azul" onclick="abrir(20)">BIA</button><button class="btn btn-azul" onclick="abrir(21)">RAYSSA SILVA</button><button class="btn btn-azul" onclick="abrir(22)">CAROL SANTOS</button><button class="btn btn-azul" onclick="abrir(23)">CLAUDIA CARNEIRO</button><button class="btn btn-azul" onclick="abrir(24)">ITALO ALVES</button><button class="btn btn-azul" onclick="abrir(25)">KARINY</button><button class="btn btn-azul" onclick="abrir(26)">VANESSA VIANA</button></div>
       <div class="grupo"><span class="dot dot-ok"></span>Valor exato — nada a repassar/receber (cinza)</div>
       <div class="btns"><button class="btn btn-ok" onclick="abrir(1)">ANDREA</button><button class="btn btn-ok" onclick="abrir(2)">EMILIENE</button><button class="btn btn-ok" onclick="abrir(3)">JESSICA ROCHA</button><button class="btn btn-ok" onclick="abrir(8)">ERIC</button><button class="btn btn-ok" onclick="abrir(10)">KAROLINY BORGES</button><button class="btn btn-ok" onclick="abrir(13)">DAVI LIMA</button><button class="btn btn-ok" onclick="abrir(14)">EVERARDO</button><button class="btn btn-ok" onclick="abrir(15)">GABRIEL GOMES</button><button class="btn btn-ok" onclick="abrir(16)">CHARLES</button><button class="btn btn-ok" onclick="abrir(18)">CACAU</button><button class="btn btn-ok" onclick="abrir(19)">GABRIEL PESSOA</button></div>
     </div>
@@ -400,7 +404,7 @@
   </div>
 
   <script>
-    const dados = [["ANDERSON", "ANGRA", 13, 15, 195, 1400, -1205, [["BIA", 120], ["CORRETORA", 1085]]], ["ANDREA", "ANGRA", 11, 15, 165, 165, 0, []], ["EMILIENE", "ANGRA", 14, 15, 210, 210, 0, []], ["JESSICA ROCHA", "ANGRA", 15, 15, 225, 225, 0, []], ["JOKEBEDYA", "ANGRA", 12, 15, 180, 195, -15, [["MIRIAM", 15]]], ["MIRIAM", "ANGRA", 14, 15, 210, 195, 15, []], ["IAN", "IBIZA", 7, 15, 105, 990, -885, [["CAROL SANTOS", 65], ["CORRETORA", 820]]], ["ERBENIA", "IBIZA", 20, 25, 500, 1020, -520, [["VANESSA VIANA", 210], ["KARINY", 150], ["ITALO ALVES", 120], ["CAROL SANTOS", 40]]], ["ERIC", "IBIZA", 28, 30, 840, 840, 0, []], ["GISELLY", "IBIZA", 11, 15, 165, 180, -15, [["CLAUDIA CARNEIRO", 15]]], ["KAROLINY BORGES", "IBIZA", 14, 15, 210, 210, 0, []], ["ANDERSON ARAUJO", "BORA BORA", 11, 15, 165, 930, -765, [["CORRETORA", 765]]], ["CAROLINE FELIX", "BORA BORA", 6, 15, 90, 165, -75, [["CORRETORA", 75]]], ["DAVI LIMA", "BORA BORA", 8, 15, 120, 120, 0, []], ["EVERARDO", "BORA BORA", 7, 15, 105, 105, 0, []], ["GABRIEL GOMES", "BORA BORA", 12, 15, 180, 180, 0, []], ["CHARLES", "BORA BORA", 14, 15, 210, 210, 0, []], ["MONICA", "FERNANDO DE NORONHA", 20, 25, 500, 1600, -1100, [["RAYSSA SILVA", 120], ["CORRETORA", 980]]], ["CACAU", "FERNANDO DE NORONHA", 13, 15, 195, 195, 0, []], ["GABRIEL PESSOA", "FERNANDO DE NORONHA", 15, 15, 225, 225, 0, []]];
+    const dados = [["ANDERSON", "ANGRA", 13, 15, 195, 1400, -1205, [["BIA", 120], ["CORRETORA", 1085]]], ["ANDREA", "ANGRA", 11, 15, 165, 165, 0, []], ["EMILIENE", "ANGRA", 14, 15, 210, 210, 0, []], ["JESSICA ROCHA", "ANGRA", 15, 15, 225, 225, 0, []], ["JOKEBEDYA", "ANGRA", 12, 15, 180, 195, -15, [["MIRIAM", 15]]], ["MIRIAM", "ANGRA", 14, 15, 210, 195, 15, [["JOKEBEDYA", 15]]], ["IAN", "IBIZA", 7, 15, 105, 990, -885, [["CAROL SANTOS", 65], ["CORRETORA", 820]]], ["ERBENIA", "IBIZA", 20, 25, 500, 1020, -520, [["VANESSA VIANA", 210], ["KARINY", 150], ["ITALO ALVES", 120], ["CAROL SANTOS", 40]]], ["ERIC", "IBIZA", 28, 30, 840, 840, 0, []], ["GISELLY", "IBIZA", 11, 15, 165, 180, -15, [["CLAUDIA CARNEIRO", 15]]], ["KAROLINY BORGES", "IBIZA", 14, 15, 210, 210, 0, []], ["ANDERSON ARAUJO", "BORA BORA", 11, 15, 165, 930, -765, [["CORRETORA", 765]]], ["CAROLINE FELIX", "BORA BORA", 6, 15, 90, 165, -75, [["CORRETORA", 75]]], ["DAVI LIMA", "BORA BORA", 8, 15, 120, 120, 0, []], ["EVERARDO", "BORA BORA", 7, 15, 105, 105, 0, []], ["GABRIEL GOMES", "BORA BORA", 12, 15, 180, 180, 0, []], ["CHARLES", "BORA BORA", 14, 15, 210, 210, 0, []], ["MONICA", "FERNANDO DE NORONHA", 20, 25, 500, 1600, -1100, [["RAYSSA SILVA", 120], ["CORRETORA", 980]]], ["CACAU", "FERNANDO DE NORONHA", 13, 15, 195, 195, 0, []], ["GABRIEL PESSOA", "FERNANDO DE NORONHA", 15, 15, 225, 225, 0, []], ["BIA", "ANGRA", 8, 15, 120, 0, 120, [["ANDERSON", 120]]], ["RAYSSA SILVA", "FERNANDO DE NORONHA", 8, 15, 120, 0, 120, [["MONICA", 120]]], ["CAROL SANTOS", "IBIZA", 7, 15, 105, 0, 105, [["IAN", 65], ["ERBENIA", 40]]], ["CLAUDIA CARNEIRO", "IBIZA", 1, 0, 0, 0, 0, [["GISELLY", 15]]], ["ITALO ALVES", "IBIZA", 8, 15, 120, 0, 120, [["ERBENIA", 120]]], ["KARINY", "IBIZA", 10, 15, 150, 0, 150, [["ERBENIA", 150]]], ["VANESSA VIANA", "IBIZA", 14, 15, 210, 0, 210, [["ERBENIA", 210]]]];
     function real(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
     function abrir(i) {
       const d = dados[i];
@@ -430,6 +434,23 @@
           } else {
             row.innerHTML = '<td>' + p[0] + '</td><td class="r">' + real(p[1]) + '</td>';
           }
+          pagTab.appendChild(row);
+        }
+        const tr = document.createElement('tr');
+        tr.className = 'total';
+        tr.innerHTML = '<td>TOTAL</td><td class="r">' + real(tot) + '</td>';
+        pagTab.appendChild(tr);
+      } else if (d[7] && d[7].length > 0) {
+        let tot = 0;
+        difEl.textContent = real(tot);
+        difEl.className = 'r destaque pos';
+        hdr.textContent = 'Recebe de:';
+        hdr.className = 'pag-hdr';
+        pagTab.innerHTML = '<tr class="tot1"><th>Quem</th><th>Valor</th></tr>';
+        for (const p of d[7]) {
+          tot += p[1];
+          const row = document.createElement('tr');
+          row.innerHTML = '<td>' + p[0] + '</td><td class="r">' + real(p[1]) + '</td>';
           pagTab.appendChild(row);
         }
         const tr = document.createElement('tr');
