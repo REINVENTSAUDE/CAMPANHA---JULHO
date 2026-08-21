@@ -3,526 +3,859 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Distribuição por Equipe</title>
+<title>Treinamento Comercial Hapvida NotreDame SP</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #1f2d3d; padding: 24px; }
-  body::before { content: ''; position: fixed; inset: 0; background: url('icon.png') center center / cover no-repeat; opacity: 0.08; z-index: -1; pointer-events: none; }
-  h1 { font-size: 22px; margin-bottom: 4px; }
-  .sub { color: #6b7785; margin-bottom: 20px; font-size: 13px; }
-  .logo { display: block; height: 90px; width: auto; margin: 2px auto 10px; }
-  .cards { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
-  .card-total { flex: 1; min-width: 200px; background: #fff; border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-  .card-total .label { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #6b7785; }
-  .card-total .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
-  .card-total .value.green { color: #2e7d32; }
-  .card-total .value.blue { color: #1976d2; }
-  .card-total .value.orange { color: #e65100; }
-  .card-total .value.gold { color: #b8860b; }
-  .card-total .value.red { color: #c62828; }
-  .card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow-x: auto; }
-  h2 { font-size: 16px; margin-bottom: 12px; color: #1f2d3d; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { background: #1f2d3d; color: #fff; padding: 8px 10px; text-align: left; white-space: nowrap; }
-  td { padding: 7px 10px; border-bottom: 1px solid #e8ecf1; }
-  tr:hover td { background: #f8fafc; }
-  tr.total td { background: #eef2f7; font-weight: 700; border-top: 2px solid #cfd8e3; }
-  .c { text-align: center; }
-  .r { text-align: right; }
-  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge.repassa { background: #fce4d6; color: #e65100; }
-  .badge.recebe { background: #e2efda; color: #2e7d32; }
-  .badge.ok { background: #e8ecf1; color: #455a64; }
-  .nota { font-size: 12px; color: #6b7785; margin-top: 6px; }
-  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
-  .btn { border: none; padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; color: #fff; }
-  .btn-repassa { background: #e65100; }
-  .btn-recebe { background: #2e7d32; }
-  .btn-ok { background: #607d8b; }
-  .btn-azul { background: #64b5f6; color: #0d2740; }
-  .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-  .overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.55); align-items: center; justify-content: center; z-index: 10; }
-  .modal { background: #fff; border-radius: 12px; padding: 24px 28px; width: 380px; max-width: 92vw; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
-  .modal h2 { margin-bottom: 14px; }
-  .modal table td { border-bottom: 1px solid #e8ecf1; }
-  .modal table td:first-child { color: #6b7785; }
-  .fechar { position: absolute; top: 10px; right: 14px; border: none; background: none; font-size: 22px; cursor: pointer; color: #6b7785; }
-  .destaque { font-weight: 700; }
-  .destaque.neg { color: #e65100; }
-  .destaque.pos { color: #2e7d32; }
-  .neg { color: #e65100; font-weight: 600; }
-  .pos { color: #2e7d32; font-weight: 600; }
-  .pag-hdr { margin-top: 14px; font-weight: 700; font-size: 13px; color: #1f2d3d; }
-  .pag-tab { margin-top: 6px; }
-  .legenda { font-size: 11px; color: #6b7785; margin-top: 10px; }
-  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .mini { border: 1px solid #e0e6ee; border-radius: 10px; background: #fff; overflow: hidden; }
-  .mini-h { background: #e65100; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 10px; }
-  .mini-h span { font-weight: 400; font-size: 11px; opacity: .9; float: right; }
-  .mini table { width: 100%; font-size: 12px; }
-  .mini td { padding: 5px 10px; border-bottom: 1px solid #eef2f6; }
-  .mini tr.total td { background: #fdf2ec; font-weight: 700; }
-  .mini tr.total td:last-child { color: #e65100; }
-  .mini-envia { font-size: 11px; font-weight: 700; color: #6b7785; padding: 7px 10px 2px; }
-  .mini-pag tr:last-child td { border-bottom: none; }
-  details.repass-section summary { cursor: pointer; padding: 12px 16px; font-weight: 700; font-size: 14px; color: #1f2d3d; user-select: none; list-style: none; display: flex; justify-content: space-between; align-items: center; }
-  details.repass-section summary::-webkit-details-marker { display: none; }
-  details.repass-section summary::after { content: '+'; font-size: 18px; color: #1976d2; }
-  details.repass-section[open] summary::after { content: '−'; }
-  details.repass-section .rep-body { padding: 0 16px 14px; overflow-x: auto; }
-  @media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 600px) { .cards-grid { grid-template-columns: 1fr; } }
-  @media (max-width: 640px) {
-    body { padding: 10px; }
-    h1 { font-size: 17px; }
-    .sub { font-size: 11px; }
-    .cards { flex-direction: column; gap: 8px; }
-    .card-total { min-width: 0; padding: 12px 14px; }
-    .card-total .value { font-size: 18px; }
-    .card { padding: 12px; border-radius: 8px; }
-    h2 { font-size: 14px; }
-    .logo { height: 36px; }
-    .row { flex-direction: column; }
-    .card.narrow { width: 100%; }
-    .card.recebedores { width: 100%; }
-    .btn-lista { display: block; width: 100%; margin: 8px 0 0; }
-    .btns { gap: 6px; }
-    .btn { padding: 8px 11px; font-size: 11px; flex: 1 1 auto; }
-    .overlay { align-items: flex-end; padding-bottom: 12px; }
-    .modal { width: 96vw; max-width: 96vw; padding: 16px; max-height: 88vh; overflow-y: auto; }
-    .modal.lista { width: 100%; max-width: 100%; padding: 10px; }
-    .modal.lista h3 { font-size: 12px; margin: 10px 0 4px; }
-    .modal.lista th { padding: 6px 6px; font-size: 11px; }
-    .modal.lista td { padding: 5px 6px; font-size: 11px; white-space: nowrap; }
-    .modal.lista table { min-width: 0; }
-    .mini-h span { float: none; display: block; margin-top: 2px; }
-    details.eq-collapse summary { padding: 11px 12px; font-size: 12.5px; flex-direction: column; align-items: flex-start; gap: 4px; }
-    .eq-info { font-size: 11px; }
-    .rep-body { padding: 0 10px 10px; }
+  :root {
+    --azul: #0056a7; --azul-esc: #003c7a; --verde: #00a651; --verde-esc: #007b3d;
+    --fundo: #eef3f7; --texto: #1f2d3d; --cinza: #5b6b7b; --borda: #dbe4ec;
   }
-  .row { display: flex; gap: 16px; align-items: flex-start; }
-  .card.narrow { flex: 0 0 auto; }
-  .card.recebedores { flex: 1 1 auto; min-width: 0; }
-  .btn-lista { background: #1976d2; margin-left: 12px; }
-  .modal.lista { width: 580px; max-width: 95vw; max-height: 84vh; overflow-y: auto; }
-  .modal.lista h3 { font-size: 13px; margin: 14px 0 6px; color: #1f2d3d; }
-  .list-hd { background: #1976d2; color: #fff; }
-  .lista-geral { background: #eef4fb; border: 1px solid #b9d2ef; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 700; color: #1f2d3d; margin-top: 8px; }
-  tr.dir td { background: #fdf0e3 !important; font-weight: 600; }
-  tr.dir td:first-child { color: #e65100; }
-  tr.cred-zero td { background: #fdecea; color: #9a2a2a; }
-  .modal.lista table.todos { table-layout: fixed; }
-  .modal.lista table.todos th:nth-child(1), .modal.lista table.todos td:nth-child(1) { width: 32%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .modal.lista table.todos th:nth-child(2), .modal.lista table.todos td:nth-child(2) { width: 18%; }
-  .modal.lista table.todos th:nth-child(3), .modal.lista table.todos td:nth-child(3) { width: 12%; }
-  .modal.lista table.todos th:nth-child(4), .modal.lista table.todos td:nth-child(4) { width: 16%; }
-  .modal.lista table.todos th:nth-child(5), .modal.lista table.todos td:nth-child(5) { width: 22%; }
-  .grupo { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #455a64; margin: 10px 0 6px; }
-  .grupo:first-of-type { margin-top: 0; }
-  .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
-  .dot-repassa { background: #e65100; }
-  .dot-recebe { background: #2e7d32; }
-  .dot-ok { background: #607d8b; }
-  .dot-azul { background: #64b5f6; }
-  .card.narrow table { min-width: 280px; }
-  .card.resumo { flex: 1 1 auto; min-width: 480px; }
-  .card.equipes { padding: 6px 18px; }
-  details.eq-collapse { border: 1px solid #e0e6ee; border-radius: 10px; margin: 8px 0; background: #fff; }
-  details.eq-collapse summary { padding: 13px 18px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; user-select: none; }
-  details.eq-collapse summary::-webkit-details-marker { display: none; }
-  details.eq-collapse summary::after { content: '+'; font-size: 18px; font-weight: 400; color: #1976d2; line-height: 1; }
-  details.eq-collapse[open] summary::after { content: '−'; }
-  details.eq-collapse:hover summary { background: #f8fafc; }
-  details.eq-collapse .eq-info { font-weight: 400; font-size: 12px; color: #6b7785; }
-  .eq-body { padding: 0 16px 14px; overflow-x: auto; }
-  .eq-body table { min-width: 560px; }
-  @media print { body { padding: 8px; } .card { box-shadow: none; break-inside: avoid; } }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--fundo); color: var(--texto); padding: 20px; }
+  .topo { background: linear-gradient(120deg, var(--azul-esc), var(--azul) 55%, var(--verde) 150%); color: #fff; border-radius: 16px; padding: 26px 28px; margin-bottom: 22px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .topo img { height: 64px; width: auto; background: #fff; border-radius: 10px; padding: 6px; }
+  .topo h1 { font-size: 24px; letter-spacing: .3px; }
+  .topo .sub { font-size: 13px; opacity: .92; margin-top: 4px; }
+  .topo .tag { margin-left: auto; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); padding: 8px 14px; border-radius: 30px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  nav.menu { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  nav.menu a { background: #fff; color: var(--azul); text-decoration: none; font-size: 12.5px; font-weight: 700; padding: 9px 14px; border-radius: 30px; border: 1px solid var(--borda); }
+  nav.menu a:hover { background: var(--azul); color: #fff; }
+  .sec { background: #fff; border-radius: 14px; padding: 22px 24px; margin-bottom: 20px; box-shadow: 0 1px 5px rgba(16,42,67,.08); }
+  .sec > h2 { font-size: 20px; color: var(--azul-esc); margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
+  .sec > h2 .n { background: var(--verde); color: #fff; font-size: 13px; min-width: 26px; height: 26px; padding: 0 5px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
+  .sec > .desc { font-size: 13px; color: var(--cinza); margin-bottom: 16px; }
+  .grid-prod { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 12px; }
+  .btn-prod { border: none; cursor: pointer; text-align: left; background: #fff; border: 2px solid var(--borda); border-radius: 12px; padding: 14px 16px; transition: .15s; }
+  .btn-prod:hover { border-color: var(--azul); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,86,167,.15); }
+  .btn-prod.ativo { border-color: var(--verde); background: #f0faf5; }
+  .btn-prod .nome { font-weight: 800; font-size: 15px; color: var(--azul-esc); }
+  .btn-prod .abran { font-size: 11.5px; color: var(--cinza); margin-top: 6px; font-weight: 600; }
+  .painel { display: none; margin-top: 18px; border: 2px solid var(--verde); border-radius: 14px; overflow: hidden; }
+  .painel.aberto { display: block; }
+  .painel-hd { background: linear-gradient(120deg, var(--azul-esc), var(--azul)); color: #fff; padding: 18px 22px; display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+  .painel-hd .pinfo { max-width: 640px; }
+  .painel-hd .nome { font-size: 20px; font-weight: 800; }
+  .painel-hd .tagline { font-size: 13px; opacity: .92; margin-top: 6px; }
+  .abas { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 22px 0; background: #f5f9fc; border-bottom: 1px solid var(--borda); }
+  .aba { border: 1px solid var(--borda); border-bottom: none; background: #fff; color: var(--azul); font-size: 12.5px; font-weight: 700; padding: 9px 14px; border-radius: 10px 10px 0 0; cursor: pointer; }
+  .aba:hover { background: #eef4fa; }
+  .aba.on { background: var(--verde); border-color: var(--verde); color: #fff; }
+  .aba-corpo { padding: 18px 22px 22px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .bloco { background: #f7fafd; border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px; }
+  .bloco h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--verde-esc); margin-bottom: 6px; }
+  ul.lista { margin: 0; padding: 0 0 0 20px; font-size: 13.5px; line-height: 1.75; }
+  ul.lista li::marker { color: var(--verde); }
+  .aviso { background: #fff7e6; border: 1px solid #f0d9a0; color: #7a5a00; font-size: 12.5px; border-radius: 8px; padding: 9px 12px; margin-top: 12px; }
+  .aviso.azul { background: #e8f0fa; border-color: #b9d2ef; color: var(--azul); }
+  .tabela { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tabela th { background: var(--azul-esc); color: #fff; padding: 8px 10px; text-align: left; white-space: nowrap; }
+  .tabela td { padding: 7px 10px; border-bottom: 1px solid var(--borda); }
+  .tabela tr:hover td { background: #f6fafd; }
+  .tabela .s { color: var(--verde-esc); font-weight: 800; }
+  .tabela .x { color: #c0392b; font-weight: 800; }
+  .tabela .c { text-align: center; }
+  .tabela-wrap { overflow-x: auto; }
+  details.acc { background: #f7fafd; border: 1px solid var(--borda); border-radius: 10px; margin-bottom: 10px; }
+  details.acc summary { cursor: pointer; list-style: none; padding: 13px 18px; font-weight: 700; font-size: 14px; color: var(--azul-esc); display: flex; justify-content: space-between; align-items: center; }
+  details.acc summary::-webkit-details-marker { display: none; }
+  details.acc summary::after { content: '+'; color: var(--verde); font-size: 19px; }
+  details.acc[open] summary::after { content: '−'; }
+  details.acc .corpo { padding: 4px 18px 16px; font-size: 13.5px; line-height: 1.7; }
+  details.acc .corpo h4 { color: var(--azul); margin: 10px 0 4px; font-size: 12.5px; text-transform: uppercase; letter-spacing: .5px; }
+  .quiz-q { margin-bottom: 16px; padding: 14px 16px; border: 1px solid var(--borda); border-radius: 10px; background: #fbfdfe; }
+  .quiz-q .perg { font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+  .quiz-q label { display: block; font-size: 13px; padding: 4px 0; cursor: pointer; }
+  .quiz-q.certo { border-color: var(--verde); background: #f0faf5; }
+  .quiz-q.errado { border-color: #e74c3c; background: #fdf1f0; }
+  .quiz-q .resp { display: none; margin-top: 8px; font-size: 12.5px; background: #fff; border-radius: 8px; padding: 8px 12px; }
+  .quiz-q.certo .resp, .quiz-q.errado .resp { display: block; }
+  .btn { border: none; background: var(--verde); color: #fff; font-weight: 700; font-size: 14px; padding: 11px 22px; border-radius: 10px; cursor: pointer; }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.azul { background: var(--azul); }
+  .resultado { font-size: 15px; font-weight: 800; margin-top: 12px; }
+  .resultado .ok { color: var(--verde-esc); }
+  .resultado .nok { color: #c0392b; }
+  footer { text-align: center; font-size: 11.5px; color: var(--cinza); padding: 10px 0 24px; line-height: 1.7; }
+  @media (max-width: 760px) {
+    body { padding: 10px; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .topo h1 { font-size: 18px; }
+    .topo img { height: 46px; }
+    .sec { padding: 14px; }
+    .painel-hd { padding: 14px 16px; }
+    .abas { padding: 10px 14px 0; }
+    .aba-corpo { padding: 14px; }
+    .tabela th, .tabela td { padding: 6px 7px; font-size: 11px; }
+  }
 </style>
 </head>
 <body>
-  <img class="logo" src="logo.png" alt="Logo">
-  <h1>Campanha Vendas Julho - HAPVIDA</h1>
-  <div class="sub">Escala de vidas aplicada às vidas atuais &bull; Valores recebidos (HAPVIDA) confrontados com o devido</div>
 
-  <div class="cards">
-    <div class="card-total"><div class="label">Total recebido (HAPVIDA)</div><div class="value blue">R$ 11.525,00</div></div>
-    <div class="card-total"><div class="label">Recebem direto (6)</div><div class="value red">R$ 2.165,00</div></div>
-    <div class="card-total"><div class="label">Parte dos vendedores</div><div class="value orange">R$ 5.620,00</div></div>
-    <div class="card-total"><div class="label">Superávit → CORRETORA</div><div class="value green">R$ 3.725,00</div></div>
+<header class="topo">
+  <img src="Logo.png" alt="Logo" onerror="this.style.display='none'">
+  <div style="flex:1;min-width:240px;">
+    <h1>Treinamento Comercial – Hapvida NotreDame SP</h1>
+    <div class="sub">Portfólio de produtos e regras comerciais • PF | SS | PME • Base: Treinamento do Corretor (08.2026)</div>
   </div>
+  <span class="tag">Treinamento 08.2026</span>
+</header>
 
-  <div class="row">
-    <div class="card narrow">
-      <h2>Escala aplicada</h2>
-      <table>
-        <thead><tr><th>Faixa de vidas</th><th>R$ por vida</th></tr></thead>
-        <tbody>
-          <tr><td>&gt;= 46 vidas</td><td>R$ 50,00</td></tr>
-          <tr><td>35 a 45 vidas</td><td>R$ 40,00</td></tr>
-          <tr><td>28 a 34 vidas</td><td>R$ 30,00</td></tr>
-          <tr><td>17 a 27 vidas</td><td>R$ 25,00</td></tr>
-          <tr><td>6 a 16 vidas</td><td>R$ 15,00</td></tr>
-          <tr><td>0 a 5 vidas</td><td>R$ 0,00</td></tr>
-        </tbody>
-      </table>
-    </div>
+<nav class="menu">
+  <a href="#portfolio">Produtos</a>
+  <a href="#oferta">Oferta x Canais</a>
+  <a href="#regras">Regras Comerciais</a>
+  <a href="#quiz">Quiz</a>
+</nav>
 
-    <div class="card recebedores">
-      <h2>Recebedores — clique para ver os valores <button class="btn btn-lista" onclick="abrirLista()">Lista completa de valores</button></h2>
-      <div class="grupo"><span class="dot dot-repassa"></span>Repassa excedente (laranja)</div>
-      <div class="btns"><button class="btn btn-repassa" onclick="abrir(0)">ANDERSON</button><button class="btn btn-repassa" onclick="abrir(4)">JOKEBEDYA</button><button class="btn btn-repassa" onclick="abrir(6)">IAN</button><button class="btn btn-repassa" onclick="abrir(7)">ERBENIA</button><button class="btn btn-repassa" onclick="abrir(9)">GISELLY</button><button class="btn btn-repassa" onclick="abrir(11)">ANDERSON ARAUJO</button><button class="btn btn-repassa" onclick="abrir(12)">CAROLINE FELIX</button><button class="btn btn-repassa" onclick="abrir(17)">MONICA</button></div>
-      <div class="grupo"><span class="dot dot-recebe"></span>Recebe diferença (verde)</div>
-      <div class="btns"><button class="btn btn-recebe" onclick="abrir(5)">MIRIAM</button></div>
-      <div class="grupo"><span class="dot dot-azul"></span>Recebe sem ter recebido do HAPVIDA (azul claro)</div>
-      <div class="btns"><button class="btn btn-azul" onclick="abrir(20)">BIA</button><button class="btn btn-azul" onclick="abrir(21)">RAYSSA SILVA</button><button class="btn btn-azul" onclick="abrir(22)">CAROL SANTOS</button><button class="btn btn-azul" onclick="abrir(23)">CLAUDIA CARNEIRO</button><button class="btn btn-azul" onclick="abrir(24)">ITALO ALVES</button><button class="btn btn-azul" onclick="abrir(25)">KARINY</button><button class="btn btn-azul" onclick="abrir(26)">VANESSA VIANA</button></div>
-      <div class="grupo"><span class="dot dot-ok"></span>Valor exato — nada a repassar/receber (cinza)</div>
-      <div class="btns"><button class="btn btn-ok" onclick="abrir(1)">ANDREA</button><button class="btn btn-ok" onclick="abrir(2)">EMILIENE</button><button class="btn btn-ok" onclick="abrir(3)">JESSICA ROCHA</button><button class="btn btn-ok" onclick="abrir(8)">ERIC</button><button class="btn btn-ok" onclick="abrir(10)">KAROLINY BORGES</button><button class="btn btn-ok" onclick="abrir(13)">DAVI LIMA</button><button class="btn btn-ok" onclick="abrir(14)">EVERARDO</button><button class="btn btn-ok" onclick="abrir(15)">GABRIEL GOMES</button><button class="btn btn-ok" onclick="abrir(16)">CHARLES</button><button class="btn btn-ok" onclick="abrir(18)">CACAU</button><button class="btn btn-ok" onclick="abrir(19)">GABRIEL PESSOA</button></div>
-    </div>
-  </div>
+<section class="sec" id="intro">
+  <h2><span class="n">i</span>Boas-vindas</h2>
+  <div class="desc">Este treinamento foi preparado para auxiliar você, corretor(a), a entender melhor os nossos planos, facilitar o acesso às regras comerciais e apoiar na realização de vendas de planos de saúde em todos os segmentos. Aproveite para facilitar ainda mais o seu dia a dia. Boas vendas!</div>
+</section>
 
-  <div class="card equipes">
-    <h2>Equipes — clique para abrir</h2>
-    
-    <details class="eq-collapse">
-      <summary>ANGRA<span class="eq-info">14 vendedores · 104 vidas · devido R$ 1.305,00</span></summary>
-      <div class="eq-body">
-      <table>
-        <thead><tr><th>Vendedor</th><th>Vidas</th><th>R$ por vida</th><th>Parte do vendedor</th><th>Recebido (HAPVIDA)</th><th>Diferença</th><th>Situação</th></tr></thead>
-        <tbody><tr><td>ANDERSON</td><td class='c'>13</td><td class='c'>15</td><td class='r'>R$ 195,00</td><td class='r'>R$ 1.400,00</td><td class='r'>R$ 1.205,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>ANDREA</td><td class='c'>11</td><td class='c'>15</td><td class='r'>R$ 165,00</td><td class='r'>R$ 165,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>BIA</td><td class='c'>8</td><td class='c'>15</td><td class='r'>R$ 120,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 120,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>EMILIENE</td><td class='c'>14</td><td class='c'>15</td><td class='r'>R$ 210,00</td><td class='r'>R$ 210,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>JESSICA ROCHA</td><td class='c'>15</td><td class='c'>15</td><td class='r'>R$ 225,00</td><td class='r'>R$ 225,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>JOKEBEDYA</td><td class='c'>12</td><td class='c'>15</td><td class='r'>R$ 180,00</td><td class='r'>R$ 195,00</td><td class='r'>R$ 15,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>LUANA</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>MIRIAM</td><td class='c'>14</td><td class='c'>15</td><td class='r'>R$ 210,00</td><td class='r'>R$ 195,00</td><td class='r'>R$ 15,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>FRAN CASTRO</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>HYANNA</td><td class='c'>1</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>LARA FABIAN</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>KEYLLA</td><td class='c'>3</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>IANA</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>KARINE GASPAR</td><td class='c'>3</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr>
-          <tr class="total"><td>Total</td><td class="c">104</td><td></td><td class="r">R$ 1.305,00</td><td class="r">R$ 2.390,00</td><td class="r">R$ 1.085,00</td><td></td></tr>
-        </tbody>
-      </table>
+<section class="sec" id="portfolio">
+  <h2><span class="n">1</span>Portfólio de Produtos</h2>
+  <div class="desc">Clique em um produto para ver o essencial (abrangência, mercado e canais). Dentro do card, use os botões para aprofundar.</div>
+  <div class="grid-prod" id="gridProdutos"></div>
+  <div class="painel" id="painelProduto">
+    <div class="painel-hd">
+      <div class="pinfo">
+        <div class="nome" id="pNome"></div>
+        <div class="tagline" id="pTagline"></div>
       </div>
-    </details>
-
-    <details class="eq-collapse">
-      <summary>IBIZA<span class="eq-info">15 vendedores · 123 vidas · devido R$ 2.405,00</span></summary>
-      <div class="eq-body">
-      <table>
-        <thead><tr><th>Vendedor</th><th>Vidas</th><th>R$ por vida</th><th>Parte do vendedor</th><th>Recebido (HAPVIDA)</th><th>Diferença</th><th>Situação</th></tr></thead>
-        <tbody><tr><td>IAN</td><td class='c'>7</td><td class='c'>15</td><td class='r'>R$ 105,00</td><td class='r'>R$ 990,00</td><td class='r'>R$ 885,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>CAROLINA SILVA</td><td class='c'>2</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ERBENIA</td><td class='c'>20</td><td class='c'>25</td><td class='r'>R$ 500,00</td><td class='r'>R$ 1.020,00</td><td class='r'>R$ 520,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>ERIC</td><td class='c'>28</td><td class='c'>30</td><td class='r'>R$ 840,00</td><td class='r'>R$ 840,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>GISELLY</td><td class='c'>11</td><td class='c'>15</td><td class='r'>R$ 165,00</td><td class='r'>R$ 180,00</td><td class='r'>R$ 15,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>IAGO</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>KARINY</td><td class='c'>10</td><td class='c'>15</td><td class='r'>R$ 150,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 150,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>KAROLINY BORGES</td><td class='c'>14</td><td class='c'>15</td><td class='r'>R$ 210,00</td><td class='r'>R$ 210,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>VANESSA VIANA</td><td class='c'>14</td><td class='c'>15</td><td class='r'>R$ 210,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 210,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>CLAUDIA CARNEIRO</td><td class='c'>1</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ITALO ALVES</td><td class='c'>8</td><td class='c'>15</td><td class='r'>R$ 120,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 120,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>CAROL SANTOS</td><td class='c'>7</td><td class='c'>15</td><td class='r'>R$ 105,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 105,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>ANA CLARA NASCIMENTO</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>RAFAELA DE SOUSA</td><td class='c'>1</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>JHENYFER</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr>
-          <tr class="total"><td>Total</td><td class="c">123</td><td></td><td class="r">R$ 2.405,00</td><td class="r">R$ 3.240,00</td><td class="r">R$ 835,00</td><td></td></tr>
-        </tbody>
-      </table>
-      </div>
-    </details>
-
-    <details class="eq-collapse">
-      <summary>BORA BORA<span class="eq-info">17 vendedores · 82 vidas · devido R$ 870,00</span></summary>
-      <div class="eq-body">
-      <table>
-        <thead><tr><th>Vendedor</th><th>Vidas</th><th>R$ por vida</th><th>Parte do vendedor</th><th>Recebido (HAPVIDA)</th><th>Diferença</th><th>Situação</th></tr></thead>
-        <tbody><tr><td>ANDERSON ARAUJO</td><td class='c'>11</td><td class='c'>15</td><td class='r'>R$ 165,00</td><td class='r'>R$ 930,00</td><td class='r'>R$ 765,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>ANA CLARA</td><td class='c'>2</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ANA KARLA</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>CAROLINE FELIX</td><td class='c'>6</td><td class='c'>15</td><td class='r'>R$ 90,00</td><td class='r'>R$ 165,00</td><td class='r'>R$ 75,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>CLARISSE TORQUATO</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>DAVI LIMA</td><td class='c'>8</td><td class='c'>15</td><td class='r'>R$ 120,00</td><td class='r'>R$ 120,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>EVERARDO</td><td class='c'>7</td><td class='c'>15</td><td class='r'>R$ 105,00</td><td class='r'>R$ 105,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>GABRIEL GOMES</td><td class='c'>12</td><td class='c'>15</td><td class='r'>R$ 180,00</td><td class='r'>R$ 180,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>MARDO</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>VICTOR FIRMINO</td><td class='c'>2</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ALCIONE MARQUES</td><td class='c'>1</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>LENNY DOMINGOS</td><td class='c'>4</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>AGATHA</td><td class='c'>3</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>CHARLES</td><td class='c'>14</td><td class='c'>15</td><td class='r'>R$ 210,00</td><td class='r'>R$ 210,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>CECILIA</td><td class='c'>2</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>IARA</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ARIANE</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr>
-          <tr class="total"><td>Total</td><td class="c">82</td><td></td><td class="r">R$ 870,00</td><td class="r">R$ 1.710,00</td><td class="r">R$ 840,00</td><td></td></tr>
-        </tbody>
-      </table>
-      </div>
-    </details>
-
-    <details class="eq-collapse">
-      <summary>FERNANDO DE NORONHA<span class="eq-info">12 vendedores · 76 vidas · devido R$ 1.040,00</span></summary>
-      <div class="eq-body">
-      <table>
-        <thead><tr><th>Vendedor</th><th>Vidas</th><th>R$ por vida</th><th>Parte do vendedor</th><th>Recebido (HAPVIDA)</th><th>Diferença</th><th>Situação</th></tr></thead>
-        <tbody><tr><td>MONICA</td><td class='c'>20</td><td class='c'>25</td><td class='r'>R$ 500,00</td><td class='r'>R$ 1.600,00</td><td class='r'>R$ 1.100,00</td><td class='c'><span class="badge repassa">REPASSA</span></td></tr><tr><td>CACAU</td><td class='c'>13</td><td class='c'>15</td><td class='r'>R$ 195,00</td><td class='r'>R$ 195,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>CARLOS HENRIQUE</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>DARLISON</td><td class='c'>3</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>EMERSON</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>GABRIEL PESSOA</td><td class='c'>15</td><td class='c'>15</td><td class='r'>R$ 225,00</td><td class='r'>R$ 225,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>RAYSSA SILVA</td><td class='c'>8</td><td class='c'>15</td><td class='r'>R$ 120,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 120,00</td><td class='c'><span class="badge recebe">A RECEBER</span></td></tr><tr><td>REGINALDO</td><td class='c'>3</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>ELLEN GADELHA</td><td class='c'>4</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>VAL PIRES</td><td class='c'>5</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>AMANDA BEATRIZ</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr><tr><td>MARIA GRAZIELA</td><td class='c'>0</td><td class='c'>0</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='r'>R$ 0,00</td><td class='c'><span class="badge ok">OK</span></td></tr>
-          <tr class="total"><td>Total</td><td class="c">76</td><td></td><td class="r">R$ 1.040,00</td><td class="r">R$ 2.020,00</td><td class="r">R$ 980,00</td><td></td></tr>
-        </tbody>
-      </table>
-      </div>
-    </details>
+    </div>
+    <div class="abas" id="pAbas"></div>
+    <div class="aba-corpo" id="pCorpo"></div>
   </div>
+</section>
 
-  <div class="card">
-    <h2>Quem precisa repassar (laranja)</h2>
-    <div class="cards-grid">
-    <div class="mini">
-      <div class="mini-h">ANDERSON <span>ANGRA</span></div>
-      <table>
-        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 1.400,00</td></tr>
-        <tr><td>Parte do vendedor</td><td class="r">R$ 195,00</td></tr>
-        <tr><td>Vidas / R$ por vida</td><td class="r">13 vidas / R$ 15,00</td></tr>
-        <tr class="total"><td>Repassa</td><td class="r neg">R$ 1.205,00</td></tr>
-      </table>
-      <div class="mini-envia">Envia para:</div>
-      <table class="mini-pag">
-        <tr><td>BIA</td><td class="r">R$ 120,00</td></tr><tr><td>CORRETORA</td><td class="r">R$ 1.085,00</td></tr>
-      </table>
-    </div>
-    <div class="mini">
-      <div class="mini-h">JOKEBEDYA <span>ANGRA</span></div>
-      <table>
-        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 195,00</td></tr>
-        <tr><td>Parte do vendedor</td><td class="r">R$ 180,00</td></tr>
-        <tr><td>Vidas / R$ por vida</td><td class="r">12 vidas / R$ 15,00</td></tr>
-        <tr class="total"><td>Repassa</td><td class="r neg">R$ 15,00</td></tr>
-      </table>
-      <div class="mini-envia">Envia para:</div>
-      <table class="mini-pag">
-        <tr><td>MIRIAM</td><td class="r">R$ 15,00</td></tr>
-      </table>
-    </div>
-    <div class="mini">
-      <div class="mini-h">IAN <span>IBIZA</span></div>
-      <table>
-        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 990,00</td></tr>
-        <tr><td>Parte do vendedor</td><td class="r">R$ 105,00</td></tr>
-        <tr><td>Vidas / R$ por vida</td><td class="r">7 vidas / R$ 15,00</td></tr>
-        <tr class="total"><td>Repassa</td><td class="r neg">R$ 885,00</td></tr>
-      </table>
-      <div class="mini-envia">Envia para:</div>
-      <table class="mini-pag">
-        <tr><td>CAROL SANTOS</td><td class="r">R$ 65,00</td></tr><tr><td>CORRETORA</td><td class="r">R$ 820,00</td></tr>
-      </table>
-    </div>
-    <div class="mini">
-      <div class="mini-h">ERBENIA <span>IBIZA</span></div>
-      <table>
-        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 1.020,00</td></tr>
-        <tr><td>Parte do vendedor</td><td class="r">R$ 500,00</td></tr>
-        <tr><td>Vidas / R$ por vida</td><td class="r">20 vidas / R$ 25,00</td></tr>
-        <tr class="total"><td>Repassa</td><td class="r neg">R$ 520,00</td></tr>
-      </table>
-      <div class="mini-envia">Envia para:</div>
-      <table class="mini-pag">
-        <tr><td>VANESSA VIANA</td><td class="r">R$ 210,00</td></tr><tr><td>KARINY</td><td class="r">R$ 150,00</td></tr><tr><td>ITALO ALVES</td><td class="r">R$ 120,00</td></tr><tr><td>CAROL SANTOS</td><td class="r">R$ 40,00</td></tr>
-      </table>
-    </div>
-    <div class="mini">
-      <div class="mini-h">GISELLY <span>IBIZA</span></div>
-      <table>
-        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 180,00</td></tr>
-        <tr><td>Parte do vendedor</td><td class="r">R$ 165,00</td></tr>
-        <tr><td>Vidas / R$ por vida</td><td class="r">11 vidas / R$ 15,00</td></tr>
-        <tr class="total"><td>Repassa</td><td class="r neg">R$ 15,00</td></tr>
-      </table>
-      <div class="mini-envia">Envia para:</div>
-      <table class="mini-pag">
-        <tr><td>CLAUDIA CARNEIRO</td><td class="r">R$ 15,00</td></tr>
-      </table>
-    </div>
-    <div class="mini">
-      <div class="mini-h">ANDERSON ARAUJO <span>BORA BORA</span></div>
-      <table>
-        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 930,00</td></tr>
-        <tr><td>Parte do vendedor</td><td class="r">R$ 165,00</td></tr>
-        <tr><td>Vidas / R$ por vida</td><td class="r">11 vidas / R$ 15,00</td></tr>
-        <tr class="total"><td>Repassa</td><td class="r neg">R$ 765,00</td></tr>
-      </table>
-      <div class="mini-envia">Envia para:</div>
-      <table class="mini-pag">
-        <tr><td>CORRETORA</td><td class="r">R$ 765,00</td></tr>
-      </table>
-    </div>
-    <div class="mini">
-      <div class="mini-h">CAROLINE FELIX <span>BORA BORA</span></div>
-      <table>
-        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 165,00</td></tr>
-        <tr><td>Parte do vendedor</td><td class="r">R$ 90,00</td></tr>
-        <tr><td>Vidas / R$ por vida</td><td class="r">6 vidas / R$ 15,00</td></tr>
-        <tr class="total"><td>Repassa</td><td class="r neg">R$ 75,00</td></tr>
-      </table>
-      <div class="mini-envia">Envia para:</div>
-      <table class="mini-pag">
-        <tr><td>CORRETORA</td><td class="r">R$ 75,00</td></tr>
-      </table>
-    </div>
-    <div class="mini">
-      <div class="mini-h">MONICA <span>FERNANDO DE NORONHA</span></div>
-      <table>
-        <tr><td>Recebeu (HAPVIDA)</td><td class="r">R$ 1.600,00</td></tr>
-        <tr><td>Parte do vendedor</td><td class="r">R$ 500,00</td></tr>
-        <tr><td>Vidas / R$ por vida</td><td class="r">20 vidas / R$ 25,00</td></tr>
-        <tr class="total"><td>Repassa</td><td class="r neg">R$ 1.100,00</td></tr>
-      </table>
-      <div class="mini-envia">Envia para:</div>
-      <table class="mini-pag">
-        <tr><td>RAYSSA SILVA</td><td class="r">R$ 120,00</td></tr><tr><td>CORRETORA</td><td class="r">R$ 980,00</td></tr>
-      </table>
-    </div></div>
-  </div>
-
-  <div class="card">
-    <details class="repass-section">
-      <summary>1) Repasses diretos — quem envia para quem (por equipe)</summary>
-      <div class="rep-body">
-      <table>
-        <thead><tr><th>Quem recebeu (HAPVIDA)</th><th>Equipe</th><th>Envia para</th><th>Valor</th></tr></thead>
-        <tbody><tr><td>ANDERSON</td><td class='c'>ANGRA</td><td>BIA</td><td class='r'>R$ 120,00</td></tr><tr><td>ANDERSON</td><td class='c'>ANGRA</td><td>CORRETORA</td><td class='r'>R$ 1.085,00</td></tr><tr><td>JOKEBEDYA</td><td class='c'>ANGRA</td><td>MIRIAM</td><td class='r'>R$ 15,00</td></tr><tr><td>IAN</td><td class='c'>IBIZA</td><td>CAROL SANTOS</td><td class='r'>R$ 65,00</td></tr><tr><td>IAN</td><td class='c'>IBIZA</td><td>CORRETORA</td><td class='r'>R$ 820,00</td></tr><tr><td>ERBENIA</td><td class='c'>IBIZA</td><td>VANESSA VIANA</td><td class='r'>R$ 210,00</td></tr><tr><td>ERBENIA</td><td class='c'>IBIZA</td><td>KARINY</td><td class='r'>R$ 150,00</td></tr><tr><td>ERBENIA</td><td class='c'>IBIZA</td><td>ITALO ALVES</td><td class='r'>R$ 120,00</td></tr><tr><td>ERBENIA</td><td class='c'>IBIZA</td><td>CAROL SANTOS</td><td class='r'>R$ 40,00</td></tr><tr><td>GISELLY</td><td class='c'>IBIZA</td><td>CLAUDIA CARNEIRO</td><td class='r'>R$ 15,00</td></tr><tr><td>ANDERSON ARAUJO</td><td class='c'>BORA BORA</td><td>CORRETORA</td><td class='r'>R$ 765,00</td></tr><tr><td>CAROLINE FELIX</td><td class='c'>BORA BORA</td><td>CORRETORA</td><td class='r'>R$ 75,00</td></tr><tr><td>MONICA</td><td class='c'>FERNANDO DE NORONHA</td><td>RAYSSA SILVA</td><td class='r'>R$ 120,00</td></tr><tr><td>MONICA</td><td class='c'>FERNANDO DE NORONHA</td><td>CORRETORA</td><td class='r'>R$ 980,00</td></tr>
-          <tr class="total"><td colspan="3">TOTAL REPASSADO</td><td class="r">R$ 4.580,00</td></tr>
-        </tbody>
-      </table>
-      </div>
-    </details>
-  </div>
-
-  <div class="card">
-    <details class="repass-section">
-      <summary>2) Quem recebe — e de quem (repasses diretos)</summary>
-      <div class="rep-body">
-      <table>
-        <thead><tr><th>Quem recebe</th><th>Equipe</th><th>Recebe de</th><th>Valor</th></tr></thead>
-        <tbody><tr><td>BIA</td><td class='c'>ANGRA</td><td>ANDERSON</td><td class='r'>R$ 120,00</td></tr><tr><td>MIRIAM</td><td class='c'>ANGRA</td><td>JOKEBEDYA</td><td class='r'>R$ 15,00</td></tr><tr><td>CAROL SANTOS</td><td class='c'>IBIZA</td><td>IAN</td><td class='r'>R$ 65,00</td></tr><tr><td>VANESSA VIANA</td><td class='c'>IBIZA</td><td>ERBENIA</td><td class='r'>R$ 210,00</td></tr><tr><td>KARINY</td><td class='c'>IBIZA</td><td>ERBENIA</td><td class='r'>R$ 150,00</td></tr><tr><td>ITALO ALVES</td><td class='c'>IBIZA</td><td>ERBENIA</td><td class='r'>R$ 120,00</td></tr><tr><td>CAROL SANTOS</td><td class='c'>IBIZA</td><td>ERBENIA</td><td class='r'>R$ 40,00</td></tr><tr><td>CLAUDIA CARNEIRO</td><td class='c'>IBIZA</td><td>GISELLY</td><td class='r'>R$ 15,00</td></tr><tr><td>RAYSSA SILVA</td><td class='c'>FERNANDO DE NORONHA</td><td>MONICA</td><td class='r'>R$ 120,00</td></tr>
-          <tr class="total"><td colspan="3">TOTAL PAGO AOS VENDEDORES</td><td class="r">R$ 855,00</td></tr>
-        </tbody>
-      </table>
-      </div>
-    </details>
-  </div>
-
-  <div class="card">
-    <h2>3) Fechamento</h2>
-    <table>
-      <tbody>
-        <tr><td>Total repassado pelos que receberam a mais</td><td class="r">R$ 4.580,00</td></tr>
-        <tr><td>(–) Pagamentos diretos aos vendedores</td><td class="r">R$ 855,00</td></tr>
-        <tr class="total"><td>Superávit que fica com a CORRETORA</td><td class="r">R$ 3.725,00</td></tr>
-      </tbody>
-    </table>
-    <div class="nota">Conferência: R$ 4.580,00 – R$ 855,00 = R$ 3.725,00</div>
-  </div>
-
-  <div class="card">
-    <h2>4) Repasses para a CORRETORA</h2>
-    <table>
-      <thead><tr><th>Quem repassa</th><th>Equipe</th><th>Valor p/ CORRETORA</th></tr></thead>
-      <tbody><tr><td>ANDERSON</td><td class='c'>ANGRA</td><td class='r'>R$ 1.085,00</td></tr><tr><td>IAN</td><td class='c'>IBIZA</td><td class='r'>R$ 820,00</td></tr><tr><td>ANDERSON ARAUJO</td><td class='c'>BORA BORA</td><td class='r'>R$ 765,00</td></tr><tr><td>CAROLINE FELIX</td><td class='c'>BORA BORA</td><td class='r'>R$ 75,00</td></tr><tr><td>MONICA</td><td class='c'>FERNANDO DE NORONHA</td><td class='r'>R$ 980,00</td></tr>
-        <tr class="total"><td colspan="2">TOTAL PARA A CORRETORA</td><td class="r">R$ 3.725,00</td></tr>
-      </tbody>
+<section class="sec" id="oferta">
+  <h2><span class="n">2</span>Oferta de Vendas por Produto</h2>
+  <div class="desc">Canais disponíveis: IND = Individual/Familiar (PF) • SS = Sua Saúde (1 a 2 vidas) • PME • CORP = Corporativo • ADES = Adesão • LIC = Licitação.</div>
+  <div class="tabela-wrap">
+    <table class="tabela">
+      <thead>
+        <tr><th>Produto</th><th class="c">PF (IND)</th><th class="c">SS</th><th class="c">PME</th><th class="c">CORP</th><th class="c">ADES</th><th class="c">LIC</th><th>Vidas mínimas</th><th>Abrangência</th></tr>
+      </thead>
+      <tbody id="tabelaOferta"></tbody>
     </table>
   </div>
+</section>
 
-  <div id="overlay" class="overlay" onclick="fechar()">
-    <div class="modal" onclick="event.stopPropagation()">
-      <button class="fechar" onclick="fechar()">&times;</button>
-      <h2 id="m-nome"></h2>
-      <table>
-        <tr><td>Equipe</td><td class="r" id="m-equipe"></td></tr>
-        <tr><td>Vidas atuais</td><td class="r" id="m-vidas"></td></tr>
-        <tr><td>R$ por vida</td><td class="r" id="m-vpv"></td></tr>
-        <tr><td>Recebeu (HAPVIDA)</td><td class="r" id="m-recebido"></td></tr>
-        <tr><td>Parte do vendedor</td><td class="r" id="m-devido"></td></tr>
-        <tr><td>Diferença</td><td class="r destaque" id="m-dif"></td></tr>
-      </table>
-      <div id="m-pag-hdr" class="pag-hdr"></div>
-      <table id="m-pag" class="pag-tab"></table>
+<section class="sec" id="regras">
+  <h2><span class="n">3</span>Regras Comerciais</h2>
+  <div class="desc">Os pontos mais importantes do treinamento do corretor (08.2026) para PF/SS/PME.</div>
+
+  <details class="acc" open>
+    <summary>3.1 • Área de vendas, filiais e urgência/emergência</summary>
+    <div class="corpo">
+      <ul class="lista">
+        <li>Todos os clientes contam com atendimento nos hospitais da Rede Própria para casos de <b>Urgência e Emergência</b> em <b>todos os produtos</b> — atendimento de U/E com abrangência nacional.</li>
+        <li><b>Filiais (NDI):</b> São Paulo, Campinas, Jundiaí, Mogi das Cruzes, Santos, São Bernardo do Campo, Sorocaba, Americana, Rio de Janeiro e São José dos Campos.</li>
+        <li>Uma filial é criada quando há rede própria na cidade (pelo menos 1 hospital ou Pronto Atendimento).</li>
+        <li>A área de vendas é composta por municípios de até <b>40 km da filial</b>; a filial consta nos contratos e tabelas. Cada filial pode ter valor diferente.</li>
+        <li><b>ATENÇÃO:</b> venda conforme o <b>endereço residencial do beneficiário</b> (não o da empresa). Comercialize apenas dentro da área autorizada — descumprimento gera penalidades ao corretor.</li>
+      </ul>
     </div>
-  </div>
+  </details>
 
-  <div id="overlay2" class="overlay" onclick="fecharLista()">
-    <div class="modal lista" onclick="event.stopPropagation()">
-      <button class="fechar" onclick="fecharLista()">&times;</button>
-      <h2>Lista completa de valores</h2>
-      <h3>Recebem diretamente (destaque)</h3>
-      <table>
-        <thead><tr class="list-hd"><th>Vendedor</th><th>Vidas</th><th>Valor por vida</th><th>Total</th></tr></thead>
-        <tbody id="l-diretos"></tbody>
-      </table>
-      <h3>Todos os vendedores</h3>
-      <table class="todos">
-        <thead><tr><th>Vendedor</th><th>Equipe</th><th>Vidas</th><th>Valor por vida</th><th>Total</th></tr></thead>
-        <tbody id="l-todos"></tbody>
-      </table>
+  <details class="acc">
+    <summary>3.2 • Carência PF/SS (cópia e redução)</summary>
+    <div class="corpo">
+      <h4>Operadora de origem Hapvida (cópia de carência)</h4>
+      <ul class="lista">
+        <li>Aproveitamento de <b>100%</b> do tempo (exceto parto, CPT e terapias): a partir de 01 ano de contrato.</li>
+        <li>Aproveitamento de <b>50%</b> (exceto parto, CPT e terapias): de 180 dias até 01 ano de contrato.</li>
+        <li><b>Redução de 30 dias</b> (exceto parto, CPT e terapias): de 30 até 179 dias de contrato.</li>
+        <li>Aproveitamento até 30 dias após o cancelamento, cliente adimplente. Não soma tempos entre operadoras — vale o último plano ativo.</li>
+      </ul>
+      <h4>Outra operadora (redução)</h4>
+      <ul class="lista">
+        <li>Redução com base no tempo cumprido no plano anterior, exceto de PF para PF.</li>
+        <li>Carências aplicadas apenas aos benefícios que o cliente não possuía (segmentação, rede e acomodação novas).</li>
+        <li>Idade limite para redução: até <b>65 anos no PF</b> e <b>64 anos no SS</b>. Confirmar lista de operadoras congêneres.</li>
+      </ul>
+      <h4>Documentação da carência</h4>
+      <ul class="lista">
+        <li>Opção 01: Carta de Permanência, Carteirinha ou Comprova ANS.</li>
+        <li>Opção 02: Carta de Portabilidade (vindo de outra operadora).</li>
+        <li>Opcionais: 2 últimos boletos com comprovantes, Carta de Adimplência ou 2 últimos holerites com desconto do plano.</li>
+      </ul>
+      <div class="aviso">⭐ <b>Cópia de Carência Especial 2026 – válida ATÉ 31/08/2026:</b> cópia incluindo parto e CPT, exceto terapias; até 74 anos; comissão normal. Exigências: segmentação assistencial, rede de prestadores, acomodação e cobertura de procedimentos equivalentes ou superiores.</div>
     </div>
-  </div>
+  </details>
 
-  <script>
-    const dados = [["ANDERSON", "ANGRA", 13, 15, 195, 1400, -1205, [["BIA", 120], ["CORRETORA", 1085]]], ["ANDREA", "ANGRA", 11, 15, 165, 165, 0, []], ["EMILIENE", "ANGRA", 14, 15, 210, 210, 0, []], ["JESSICA ROCHA", "ANGRA", 15, 15, 225, 225, 0, []], ["JOKEBEDYA", "ANGRA", 12, 15, 180, 195, -15, [["MIRIAM", 15]]], ["MIRIAM", "ANGRA", 14, 15, 210, 195, 15, [["JOKEBEDYA", 15]]], ["IAN", "IBIZA", 7, 15, 105, 990, -885, [["CAROL SANTOS", 65], ["CORRETORA", 820]]], ["ERBENIA", "IBIZA", 20, 25, 500, 1020, -520, [["VANESSA VIANA", 210], ["KARINY", 150], ["ITALO ALVES", 120], ["CAROL SANTOS", 40]]], ["ERIC", "IBIZA", 28, 30, 840, 840, 0, []], ["GISELLY", "IBIZA", 11, 15, 165, 180, -15, [["CLAUDIA CARNEIRO", 15]]], ["KAROLINY BORGES", "IBIZA", 14, 15, 210, 210, 0, []], ["ANDERSON ARAUJO", "BORA BORA", 11, 15, 165, 930, -765, [["CORRETORA", 765]]], ["CAROLINE FELIX", "BORA BORA", 6, 15, 90, 165, -75, [["CORRETORA", 75]]], ["DAVI LIMA", "BORA BORA", 8, 15, 120, 120, 0, []], ["EVERARDO", "BORA BORA", 7, 15, 105, 105, 0, []], ["GABRIEL GOMES", "BORA BORA", 12, 15, 180, 180, 0, []], ["CHARLES", "BORA BORA", 14, 15, 210, 210, 0, []], ["MONICA", "FERNANDO DE NORONHA", 20, 25, 500, 1600, -1100, [["RAYSSA SILVA", 120], ["CORRETORA", 980]]], ["CACAU", "FERNANDO DE NORONHA", 13, 15, 195, 195, 0, []], ["GABRIEL PESSOA", "FERNANDO DE NORONHA", 15, 15, 225, 225, 0, []], ["BIA", "ANGRA", 8, 15, 120, 0, 120, [["ANDERSON", 120]]], ["RAYSSA SILVA", "FERNANDO DE NORONHA", 8, 15, 120, 0, 120, [["MONICA", 120]]], ["CAROL SANTOS", "IBIZA", 7, 15, 105, 0, 105, [["IAN", 65], ["ERBENIA", 40]]], ["CLAUDIA CARNEIRO", "IBIZA", 1, 0, 0, 0, 0, [["GISELLY", 15]]], ["ITALO ALVES", "IBIZA", 8, 15, 120, 0, 120, [["ERBENIA", 120]]], ["KARINY", "IBIZA", 10, 15, 150, 0, 150, [["ERBENIA", 150]]], ["VANESSA VIANA", "IBIZA", 14, 15, 210, 0, 210, [["ERBENIA", 210]]]];
-    function real(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
-    function abrir(i) {
-      const d = dados[i];
-      document.getElementById('m-nome').textContent = d[0];
-      document.getElementById('m-equipe').textContent = d[1];
-      document.getElementById('m-vidas').textContent = d[2];
-      document.getElementById('m-vpv').textContent = 'R$ ' + d[3].toFixed(2).replace('.', ',');
-      document.getElementById('m-recebido').textContent = real(d[5]);
-      document.getElementById('m-devido').textContent = real(d[4]);
-      const difEl = document.getElementById('m-dif');
-      const hdr = document.getElementById('m-pag-hdr');
-      const pagTab = document.getElementById('m-pag');
-      pagTab.innerHTML = '';
-      hdr.textContent = '';
-      if (d[6] < 0) {
-        difEl.textContent = real(-d[6]) + ' a repassar';
-        difEl.className = 'r destaque neg';
-        hdr.textContent = 'Envia para:';
-        hdr.className = 'pag-hdr';
-        let tot = 0;
-        pagTab.innerHTML = '<tr class="tot1"><th>Quem</th><th>Valor</th></tr>';
-        for (const p of d[7]) {
-          tot += p[1];
-          const row = document.createElement('tr');
-          if (p[0] === 'CORRETORA') {
-            row.innerHTML = '<td>' + p[0] + '</td><td class="r neg">' + real(p[1]) + '</td>';
-          } else {
-            row.innerHTML = '<td>' + p[0] + '</td><td class="r">' + real(p[1]) + '</td>';
-          }
-          pagTab.appendChild(row);
-        }
-        const tr = document.createElement('tr');
-        tr.className = 'total';
-        tr.innerHTML = '<td>TOTAL</td><td class="r">' + real(tot) + '</td>';
-        pagTab.appendChild(tr);
-      } else if (d[7] && d[7].length > 0) {
-        let tot = 0;
-        difEl.textContent = real(tot);
-        difEl.className = 'r destaque pos';
-        hdr.textContent = 'Recebe de:';
-        hdr.className = 'pag-hdr';
-        pagTab.innerHTML = '<tr class="tot1"><th>Quem</th><th>Valor</th></tr>';
-        for (const p of d[7]) {
-          tot += p[1];
-          const row = document.createElement('tr');
-          row.innerHTML = '<td>' + p[0] + '</td><td class="r">' + real(p[1]) + '</td>';
-          pagTab.appendChild(row);
-        }
-        const tr = document.createElement('tr');
-        tr.className = 'total';
-        tr.innerHTML = '<td>TOTAL</td><td class="r">' + real(tot) + '</td>';
-        pagTab.appendChild(tr);
-      } else if (d[6] > 0) {
-        difEl.textContent = real(d[6]);
-        difEl.className = 'r destaque pos';
-        hdr.textContent = 'Recebe a diferença de:';
-        hdr.className = 'pag-hdr';
-        pagTab.innerHTML = '<tr><td>CORRETORA</td><td class="r pos">' + real(d[6]) + '</td></tr>';
-      } else {
-        difEl.textContent = 'R$ 0,00';
-        difEl.className = 'r destaque';
-        hdr.textContent = 'Recebeu exatamente o devido — nada a repassar nem receber.';
-        hdr.className = 'nota';
-      }
-      document.getElementById('overlay').style.display = 'flex';
+  <details class="acc">
+    <summary>3.3 • Aceitação de vidas (idades)</summary>
+    <div class="corpo">
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead><tr><th>Vínculo / Tipo</th><th class="c">Smart</th><th class="c">Advance</th><th class="c">Premium 900 Care</th><th class="c">Premium 900.1</th><th class="c">Infinity</th></tr></thead>
+          <tbody>
+            <tr><td>Sócio (titular)</td><td class="c">74 anos</td><td class="c">74 anos</td><td class="c">74 anos</td><td class="c">74 anos</td><td class="c">74 anos</td></tr>
+            <tr><td>Funcionário CLT (titular)</td><td class="c">74 anos</td><td class="c">74 anos</td><td class="c">74 anos</td><td class="c">74 anos</td><td class="c">74 anos</td></tr>
+            <tr><td>Prestador de serviço (titular)</td><td class="c">18–74</td><td class="c">18–74</td><td class="c">18–74</td><td class="c x">X</td><td class="c x">X</td></tr>
+            <tr><td>Estagiário (titular)</td><td class="c">+16</td><td class="c">+16</td><td class="c">+16</td><td class="c">+16</td><td class="c">+16</td></tr>
+            <tr><td>Jovem Aprendiz (titular)</td><td class="c">14–24</td><td class="c">14–24</td><td class="c">14–24</td><td class="c">14–24</td><td class="c">14–24</td></tr>
+            <tr><td>Cônjuge (dependente)</td><td class="c">74 anos</td><td class="c">74 anos</td><td class="c">74 anos</td><td class="c">74 anos</td><td class="c">74 anos</td></tr>
+            <tr><td>Filhos solteiros / adotivos / enteados</td><td class="c">53 anos</td><td class="c">53 anos</td><td class="c">53 anos</td><td class="c">53 anos</td><td class="c">53 anos</td></tr>
+            <tr><td>Agregados (pai/mãe, irmãos, tios, sogros, netos etc.)</td><td class="c">53 anos</td><td class="c">53 anos</td><td class="c">53 anos</td><td class="c x">X</td><td class="c x">X</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="lista" style="margin-top:10px;">
+        <li>Movimentação: 5% de aceitação entre 65 e 74 anos; 1% a partir de 75 anos. Vindo de outra operadora reduz até 64 anos. Reajuste por faixa etária.</li>
+        <li><b>Prestador de serviço e convívio marital:</b> assinatura GOV, digital ou reconhecimento de firma em cartório. Filhos em comum não comprovam vínculo.</li>
+        <li><b>Repique:</b> ex-beneficiário querendo retornar à operadora — consultar regras vigentes no Portal da Corretora.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>3.4 • PME – Livre Adesão, Compulsório e documentação</summary>
+    <div class="corpo">
+      <h4>Compulsório</h4>
+      <ul class="lista">
+        <li>100% dos sócios e 100% dos funcionários titulares com vínculo empregatício ativo (registrados no e-Social).</li>
+        <li>No mínimo 80% do quadro total para contratos até 9 titulares; mínimo 90% para 10 ou mais titulares.</li>
+      </ul>
+      <h4>Encampação (migração de 100% das vidas de outra operadora)</h4>
+      <ul class="lista">
+        <li>Permanência mínima de 12 meses no plano anterior; sem acréscimos ou exclusões.</li>
+        <li>Intervalo máximo de <b>30 dias corridos</b> entre a rescisão do contrato anterior e a data de protocolo da nova proposta.</li>
+        <li>Não se enquadram: Planos Pessoa Física (Individual/Familiar) e Coletivos por Adesão.</li>
+      </ul>
+      <h4>Documentação (2–29 e 30–99 vidas)</h4>
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead><tr><th>Documento</th><th class="c">2–29 vidas</th><th class="c">30–99 vidas</th><th>Obs.</th></tr></thead>
+          <tbody>
+            <tr><td>Cartão CNPJ</td><td class="c s">√</td><td class="c s">√</td><td>Doc. simples no site da Receita Federal</td></tr>
+            <tr><td>Contrato Social / Requerimento ME / Certificado MEI</td><td class="c s">√</td><td class="c s">√</td><td>Comprova titularidade do CNPJ</td></tr>
+            <tr><td>RG ou CNH do responsável pelo CNPJ</td><td class="c s">√</td><td class="c s">√</td><td>Quem assina pelo CNPJ</td></tr>
+            <tr><td>Vínculo das vidas com o CNPJ</td><td class="c s">√</td><td class="c s">√</td><td>Ficha de registro (≤30 dias) ou e-Social / CTPS / contrato de prestador</td></tr>
+            <tr><td>Layout em Excel</td><td class="c s">√</td><td class="c s">√</td><td>Preencher tudo, não apagar colunas</td></tr>
+            <tr><td>RG/CNH/documento com foto das vidas</td><td class="c s">√</td><td class="c s">√</td><td>Das vidas incluídas</td></tr>
+            <tr><td>Vínculo com o titular</td><td class="c s">√</td><td class="c s">√</td><td>Comprova dependência</td></tr>
+            <tr><td>Endereço (sem comprovante)</td><td class="c s">√</td><td class="c s">√</td><td>Apenas preencher</td></tr>
+            <tr><td>Celular e e-mail de cada titular</td><td class="c s">√</td><td class="c s">√</td><td>Cada titular com celular diferente</td></tr>
+            <tr><td>Carta de Responsabilidade</td><td class="c x">X</td><td class="c s">√</td><td>Anula o envio de documentos das vidas acima de 30 vidas</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>3.5 • Coparticipação, reembolso e terapias especiais</summary>
+    <div class="corpo">
+      <ul class="lista">
+        <li><b>Coparticipação Parcial:</b> cobrança apenas sobre terapias. <b>Coparticipação Total:</b> cobrança sobre todos os procedimentos.</li>
+        <li><b>ISENTO COPAY em internação na Rede Própria</b> (SS/PME).</li>
+        <li>Sem coparticipação (S/ Copay): somente para produtos Corporativos.</li>
+      </ul>
+      <h4>Reembolso conforme produto (SS/PME)</h4>
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead><tr><th>Produto</th><th class="c">Prazo</th><th class="c">Limite diário</th><th class="c">Vidas mínimas</th></tr></thead>
+          <tbody>
+            <tr><td>Advance 600</td><td class="c">7 dias</td><td class="c">R$ 75,00</td><td class="c">1</td></tr>
+            <tr><td>Advance 700</td><td class="c">7 dias</td><td class="c">R$ 96,00</td><td class="c">1</td></tr>
+            <tr><td>Premium 900.1 / 900 Care</td><td class="c">5 dias</td><td class="c">R$ 240,00</td><td class="c">3 / 2</td></tr>
+            <tr><td>Infinity 1000.11</td><td class="c">3 dias</td><td class="c">R$ 400,00</td><td class="c">5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="lista">
+        <li>Reembolso parcial: somente consultas. Reembolso total: todos os procedimentos (PPO).</li>
+        <li>Smart Prime: <b>não possui reembolso</b>.</li>
+        <li>Tabelas de reembolso: SP, RJ, Jundiaí, Mogi das Cruzes, Santos e São Bernardo do Campo.</li>
+      </ul>
+      <h4>Coparticipação especial – 58 terapias (TEA e afins)</h4>
+      <ul class="lista">
+        <li>Psicólogo/psicoterapia (tabela Medical 1205), ABA, Denver, BOBATH, Pediasuit, Ayres, Cuevas Medek, Therasuit, Equoterapia, Musicoterapia, Psicomotricidade, Psicopedagogia, Fonoaudiologia (inclusive em Libras), Terapia Ocupacional, Fisioterapia, Nutrição TEA, Teste Neuropsicológico e pacotes mensais de Baixa/Média/Alta complexidade.</li>
+        <li>Atenção: não utilizar tratamento Pediasuit pela tabela RN 1200.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>3.6 • Odonto Premium Nacional (incluso)</summary>
+    <div class="corpo">
+      <div class="desc" style="margin-bottom:8px;">Plano odontológico completo (ROL ANS) incluso em novas vendas de plano de saúde até 99 vidas. Atendimento nacional em rede credenciada.</div>
+      <h4>Coberturas</h4>
+      <ul class="lista">
+        <li>Diagnóstico, urgência/emergência (curativos e alívio da dor), radiologia, prevenção (profilaxia, flúor, higiene bucal), odontopediatria, dentística (resina e amálgama), endodontia (tratamento e retratamento de canal), periodontia (limpeza, gengivectomia/gengivoplastia), prótese (pino, coroa e bloco), cirurgia (extração simples e do siso).</li>
+      </ul>
+      <h4>Carências</h4>
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead><tr><th>Especialidade</th><th class="c">Prazo</th></tr></thead>
+          <tbody>
+            <tr><td>Urgência e Emergência</td><td class="c">24 horas</td></tr>
+            <tr><td>Consulta inicial, prevenção, radiologia, odontopediatria, odontologia clínica, periodontia</td><td class="c">60 dias</td></tr>
+            <tr><td>Exames complementares</td><td class="c">90 dias</td></tr>
+            <tr><td>Endodontia, prótese, prótese especial, cirurgia</td><td class="c">180 dias</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:10px;">🦷 <b>Saúde bucal x saúde geral:</b> doença periodontal pode favorecer bactérias na corrente sanguínea e complicações cardiovasculares; a diabetes impacta a saúde bucal e problemas na boca dificultam o controle da glicemia — bom argumento de venda.</p>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>3.7 • Portais, Planium e outras regras</summary>
+    <div class="corpo">
+      <ul class="lista">
+        <li><b>Portal do Vendedor (CPF):</b> vendas PF; Declaração de Saúde preenchida pelo vendedor no momento de subir a venda. Atenção ao aproveitamento de carência e ao desconto de plano familiar.</li>
+        <li><b>Portal da Corretora (CNPJ):</b> consulta de orçamentos e vendedores, repique e numeração de carteirinha; consultar, regularizar, excluir orçamentos e reenviar SMS.</li>
+        <li><b>Portal do Cliente:</b> 1º boleto somente pelo Portal do Cliente.</li>
+        <li><b>App de Vendas PF (Android)</b> e <b>Vendas ON</b>.</li>
+        <li><b>Planium:</b> sistema de vendas WEB para SS/PME. Vigência: vencimento do 1º boleto 3 dias após a vigência; 2º boleto conforme tabela; atraso na vigência ajusta vencimento automaticamente.</li>
+        <li><b>Produtos mistos:</b> Advance, Premium e Infinity podem ser misturados com Nosso Médico, Smart Up, Smart Flex e Smart Prime (ex.: 1 vida Smart Up + 1 vida Advance).</li>
+        <li><b>Taxa de implantação SS/PME:</b> R$ 25,00 por proposta. Produtos PF: sem taxa de implantação.</li>
+        <li><b>Infinity – contatos:</b> agendamento pelo Concierge da Unidade (11) 95649-0785; dúvidas e autorização de procedimentos (11) 98515-5856. Check-up disponível apenas para titulares.</li>
+      </ul>
+    </div>
+  </details>
+
+</section>
+
+<section class="sec" id="quiz">
+  <h2><span class="n">4</span>Quiz de Fixação</h2>
+  <div class="desc">Responda e clique em "Corrigir Quiz" para ver a pontuação e o gabarito.</div>
+  <div id="quizBox"></div>
+  <button class="btn azul" onclick="corrigirQuiz()" style="margin-top:6px;">Corrigir Quiz</button>
+  <button class="btn" onclick="limparQuiz()" style="margin-top:6px;">Refazer</button>
+  <div class="resultado" id="quizResultado"></div>
+</section>
+
+<footer>
+  <div class="aviso" style="margin-top:12px;">Responsável Técnico: Dr. Francisco Floriano Delgado Perdigão – CRM/CE 4953 • Diretor Médico NotreDame Intermédica: Dr. Rodolfo Pires de Albuquerque – CRM/SP 40137.<br>Tabelas de preços sujeitas a alteração. Boas vendas!</div>
+</footer>
+
+<script>
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function listaUl(arr) {
+  var h = '<ul class="lista">';
+  for (var i = 0; i < arr.length; i++) h += '<li>' + arr[i] + '</li>';
+  return h + '</ul>';
+}
+
+var PRODUTOS = [
+  {
+    nome: "Nosso Médico",
+    tagline: "Médicos especializados em Medicina da Família, com acompanhamento dedicado à saúde do beneficiário (presencial e online).",
+    canais: ["IND","SS","PME","CORP","ADES","LIC"],
+    abran: "Grupo de Municípios",
+    mercado: "PF | SS | PME",
+    minVidas: "1 vida (PF)",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento"],
+      ["Coparticipação","Copay Total e Parcial | S/ Copay somente Corp"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"],
+      ["Médico da família","Atendimento presencial e online"]
+    ],
+    difer: [
+      "Especiais de livre acesso: Urgência/Emergência, Ginecologia/Obstetrícia, Pediatria, Oftalmologia, Terapias de Apoio",
+      "Cuidado contínuo — modelo que acompanha cada etapa da saúde",
+      "Programas e Protocolos de Saúde Hapvida NotreDame"
+    ],
+    rede: ["Hospital Bosque da Saúde","Hospital e Mat. Nossa Senhora do Rosário","Hospital e Mat. Salvalus","Hospital Keila Ferreira","Hospital Frei Galvão","Hospital Santana Mogi","Mat. Notrecare ABC","Hospital Jardim Anália Franco","Hospital Cruzeiro do Sul","Hospital Nova Vida","Hospital São Bernardo"],
+    labs: ["Diagnóstico Vila Carrão","Diagnóstico Santa Cruz","Notrelabs Tatuapé","Notrelabs Qualivida Angélica"],
+    cidades: ["RMSP (19 cidades): Arujá, Barueri, Caieiras, Carapicuíba, Cotia, Diadema, Guarulhos, Itapevi, Jandira, Mauá, Mogi das Cruzes, Osasco, Ribeirão Pires, Santo André, Santos, São Bernardo do Campo, São Paulo (Capital), São Vicente e Taboão da Serra","Outras praças: Campinas, Jundiaí, Americana e Sorocaba"],
+    extras: []
+  },
+  {
+    nome: "Smart Up",
+    tagline: "Atende em mais de 40 cidades! Rede Própria e Rede Credenciada, com mais 4 prestadores de urgência e emergência.",
+    canais: ["IND","SS","PME","CORP","ADES","LIC"],
+    abran: "Grupo de Municípios",
+    mercado: "PF | SS | PME",
+    minVidas: "1 vida (PF)",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento* | *PF: a partir de 50 anos; *SS/PME: todas as idades"],
+      ["Atendimento","Rede Própria e Rede Credenciada"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"],
+      ["Versão PF ambulatorial","U/E 24h (12h de permanência), consultas, exames, cirurgias ambulatoriais e terapias — NÃO tem atendimento hospitalar"]
+    ],
+    difer: [
+      "Hospitais próprios conectados nas principais regiões de São Paulo",
+      "Pronto Socorro em todas as regiões da capital",
+      "Mais 4 prestadores de urgência e emergência",
+      "Smart UP: apenas São Paulo | Smart RIO: apenas Rio de Janeiro"
+    ],
+    rede: ["Toda a Rede do Nosso Médico +","P.S. Hospital Albert Sabin","P.S. Hospital Portinari","P.S. Hospital Cruz Azul","P.S. Hospital Vidas","Hospital Paulo Sacramento","Hospital Renascença Campinas","Hospital e Mat. Modelo","Hospital Notrecare Sorocaba","Cema"],
+    labs: ["Diagnóstico Vila Carrão","Diagnóstico Santa Cruz","Notrelabs Tatuapé","Notrelabs Qualivida Angélica"],
+    cidades: ["Smart UP SP: Americana, Arujá, Barueri, Caieiras, Cajamar, Campinas, Campo Limpo Paulista, Carapicuíba, Cotia, Cubatão, Diadema, Embu das Artes, Ferraz de Vasconcelos, Guararema, Guarujá, Guarulhos, Hortolândia, Itapevi, Itaquaquecetuba, Itu, Itupeva, Jandira, Jundiaí, Louveira, Mauá, Mogi das Cruzes, Nova Odessa, Osasco, Poá, Ribeirão Pires, Santa Bárbara d'Oeste, Santa Isabel, Santo André, Santos, São Bernardo do Campo, São Caetano do Sul, São Paulo, São Vicente, Sorocaba, Sumaré, Suzano, Taboão da Serra, Várzea Paulista, Vinhedo, Votorantim","Smart RIO: Belford Roxo, Duque de Caxias, Itaboraí, Magé, Maricá, Mesquita, Nilópolis, Niterói, Nova Iguaçu, Rio de Janeiro, São Gonçalo, São João de Meriti"],
+    extras: []
+  },
+  {
+    nome: "Smart Up Ambulatorial",
+    tagline: "Plano PF ambulatorial — U/E 24h, consultas, exames, cirurgias ambulatoriais e terapias. NÃO tem atendimento hospitalar.",
+    canais: ["IND"],
+    abran: "SP e RJ",
+    mercado: "PF",
+    minVidas: "1 vida (PF)",
+    carac: [
+      ["Segmentação","Apenas Ambulatorial (A)"],
+      ["Acomodação","Ambulatorial"],
+      ["Atendimento","Rede Própria e Rede Credenciada"],
+      ["Urgência/Emergência","24h com até 12h de permanência"],
+      ["Plano","Ambulatorial (ROL ANS) — sem cobertura hospitalar"]
+    ],
+    difer: [
+      "Urgência/Emergência 24h (12h de permanência)",
+      "Consulta em todas as especialidades",
+      "Exames de rotina (média e alta complexidade)",
+      "Cirurgias ambulatoriais (verruga, unha encravada, pintas etc)",
+      "Terapias"
+    ],
+    rede: ["Toda a Rede do Nosso Médico (ambulatorial)"],
+    labs: ["Diagnóstico Vila Carrão","Diagnóstico Santa Cruz","Notrelabs Tatuapé","Notrelabs Qualivida Angélica"],
+    cidades: ["SP: Americana, Barueri, Carapicuíba, Cajamar, Campinas, Campo Limpo Paulista, Caieiras, Cotia, Cubatão, Diadema, Embu das Artes, Guarujá, Guarulhos, Hortolândia, Itu, Itupeva, Itapevi, Jandira, Jundiaí, Louveira, Mauá, Nova Odessa, Osasco, Santa Bárbara D'Oeste, Santo André, São Bernardo do Campo, São Caetano, Santos, São Vicente, Ribeirão Pires, Sorocaba, Taboão da Serra, São Paulo, Sumaré, Várzea Paulista, Vinhedo e Votorantim","RJ: Belford Roxo, Duque de Caxias, Itaboraí, Maricá, Mesquita, Nilópolis, Niterói, Nova Iguaçu, Rio de Janeiro, São Gonçalo e São João do Meriti"],
+    extras: [["Atenção",["Após 12h ou internação = particular ou transferência para o SUS quando houver vaga","NÃO tem atendimento Hospitalar"]]]
+  },
+  {
+    nome: "Smart Flex SP",
+    tagline: "Amplia o acesso à saúde com mais de 50 cidades! Rede Própria e Rede Credenciada ampliada.",
+    canais: ["SS","PME","CORP","ADES","LIC"],
+    abran: "Grupo de Municípios",
+    mercado: "SS | PME",
+    minVidas: "1 vida",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento"],
+      ["Atendimento","Rede Própria Hapvida NotreDame + Rede Credenciada ampliada"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"]
+    ],
+    difer: [
+      "Mais flexibilidade: acesso à rede própria Hapvida e a uma rede credenciada ampliada",
+      "Mais liberdade de escolha e conveniência no dia a dia"
+    ],
+    rede: ["Toda a Rede do Nosso Médico +","Hospital Albert Sabin","Hospital Portinari","Hospital Cruz Azul","Hospital Vidas","Hospital Sepaco","Hospital Dom Alvarenga"],
+    labs: ["Ultracron (Barueri)","Diagmed (Campinas)","Unidades Notrelabs","Lab Hormon","Cura"],
+    cidades: ["Arujá, Barueri, Bertioga, Cabreúva, Caieiras, Cajamar, Campinas, Campo Limpo Paulista, Carapicuíba, Cotia, Cubatão, Diadema, Embu das Artes, Ferraz de Vasconcelos, Francisco Morato, Franco da Rocha, Guararema, Guarujá, Guarulhos, Hortolândia, Indaiatuba, Itanhaém, Itapecerica da Serra, Itapevi, Itaquaquecetuba, Itupeva, Jandira, Jariú, Jundiaí, Louveira, Mairiporã, Mauá, Mogi das Cruzes, Mongaguá, Osasco, Peruíbe, Poá, Praia Grande, Ribeirão Pires, Santa Isabel, Santana de Parnaíba, Santo André, Santos, São Bernardo do Campo, São Caetano do Sul, São Paulo, São Vicente, Sorocaba, Sumaré, Suzano, Taboão da Serra, Valinhos, Vargem Grande Paulista, Várzea Paulista, Vinhedo, Votorantim"],
+    extras: []
+  },
+  {
+    nome: "Smart Prime",
+    tagline: "Cobertura nacional, presente nas 5 regiões do Brasil. 27 estados.",
+    canais: ["SS","PME","CORP","LIC"],
+    abran: "NACIONAL",
+    mercado: "SS | PME",
+    minVidas: "1 vida",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento"],
+      ["Atendimento","Rede Própria e Rede Credenciada"],
+      ["Reembolso","NÃO possui reembolso"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"]
+    ],
+    difer: [
+      "Cobertura nacional (abrangência em todo o território brasileiro)",
+      "Mobilidade e flexibilidade: cuidado de qualidade onde você estiver",
+      "Inclusão no Varejo"
+    ],
+    rede: ["Toda a Rede do Smart Flex +","Hospital IGESP Paulista","Hospital Santa Maria de Suzano","Hospital Novo Atibaia","Santa Casa de São José dos Campos","Santa Casa de Bragança","Casa de Saúde do Guarujá"],
+    labs: ["Lavosier","Femme – Laboratório da Mulher","Laboratório Saluti"],
+    cidades: ["Presente nas 5 regiões do Brasil, com 27 estados na abrangência"],
+    extras: []
+  },
+  {
+    nome: "Smart 300",
+    tagline: "Abrangência SP, RJ, MG e PR, com acomodação em enfermaria.",
+    canais: ["SS","PME"],
+    abran: "SP, RJ, MG, PR",
+    mercado: "SS | PME",
+    minVidas: "1 vida",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria"],
+      ["Atendimento","Rede Própria e Rede Credenciada | *Pronto-socorro credenciado (18h–8h)"],
+      ["Comercialização","Americana, Campinas, Jundiaí, Sorocaba e Rio de Janeiro"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"]
+    ],
+    difer: [
+      "Mais uma opção de entrada para SS/PME com abrangência interestadual",
+      "Atendimento em rede própria e credenciada"
+    ],
+    rede: ["Rede Própria Hapvida NotreDame + Rede Credenciada (SP, RJ, MG e PR)"],
+    labs: ["Unidades Notrelabs e rede credenciada das praças"],
+    cidades: ["Comercialização e atendimento: Americana, Campinas, Jundiaí, Sorocaba e Rio de Janeiro"],
+    extras: []
+  },
+  {
+    nome: "Smart 500",
+    tagline: "Abrangência SP, RJ, MG, DF e PR, com enfermaria e apartamento.",
+    canais: ["SS","PME"],
+    abran: "SP, RJ, MG, DF, PR",
+    mercado: "SS | PME",
+    minVidas: "1 vida",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento"],
+      ["Atendimento","Rede Própria e Rede Credenciada"],
+      ["Comercialização","Americana, Campinas, Jundiaí, Sorocaba e Rio de Janeiro"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"]
+    ],
+    difer: [
+      "Abrangência ampliada com DF na rede",
+      "Atendimento em rede própria e credenciada"
+    ],
+    rede: ["Rede Própria Hapvida NotreDame + Rede Credenciada (SP, RJ, MG, DF e PR)"],
+    labs: ["Unidades Notrelabs e rede credenciada das praças"],
+    cidades: ["Comercialização e atendimento: Americana, Campinas, Jundiaí, Sorocaba e Rio de Janeiro"],
+    extras: []
+  },
+  {
+    nome: "Pleno Vale do Paraíba",
+    tagline: "Abrangência regional no Vale do Paraíba, com rede própria e credenciada.",
+    canais: ["SS","PME"],
+    abran: "Regional (Vale do Paraíba)",
+    mercado: "SS | PME",
+    minVidas: "1 vida",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento"],
+      ["Atendimento","Rede Própria e Rede Credenciada"],
+      ["Comercialização","Caraguatatuba, Guararema, Lorena, Jacareí e São José dos Campos"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"]
+    ],
+    difer: [
+      "Opção regional com cobertura completa para o Vale do Paraíba"
+    ],
+    rede: ["Rede Própria Hapvida NotreDame + Rede Credenciada da região"],
+    labs: ["Rede credenciada da região"],
+    cidades: ["Abrangência: Caçapava, Campos do Jordão, Caraguatatuba, Guararema, Guaratinguetá, Igaratá, Jacareí, Lorena, Pindamonhangaba, Santa Branca, São José dos Campos, São Sebastião, Taubaté, Tremembé e Ubatuba"],
+    extras: []
+  },
+  {
+    nome: "Advance 600",
+    tagline: "Mais liberdade de escolha e conveniência, com acesso à rede própria e credenciada ampliada.",
+    canais: ["SS","PME","CORP","ADES","LIC"],
+    abran: "NACIONAL",
+    mercado: "SS | PME",
+    minVidas: "1 vida",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento"],
+      ["Coparticipação","Copay Total e Parcial | S/ Copay somente Corp"],
+      ["Reembolso","7 dias • R$ 75,00/dia"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"]
+    ],
+    difer: [
+      "Verticalização Advance 600: 20,9%",
+      "Leitos dedicados em 3 hospitais de SP (Salvalus, SBC e Bosque da Saúde)",
+      "Concierge: acompanhamento da jornada do beneficiário",
+      "Vantagens na internação Rede Própria: ala exclusiva, upgrade acomodação, estacionamento grátis, refeição acompanhante"
+    ],
+    rede: ["Toda a Rede do Smart Prime +","Hospital São Lucas (Rio)","Hospital Santa Paula","Hospital Nipo Brasileiro","Hospital São Luiz São Bernardo (Hosp. Assunção)","Hospital Christóvão da Gama","Hospital Portinari"],
+    labs: ["Laboratório Notrelabs","Laboratório Lavoisier","Laboratório Tecnolob","Unidade Hapvida NotreDame Advance"],
+    cidades: ["Abrangência nacional"],
+    extras: [["Contratos",["A partir de 1 vida na proposta","Produtos mistos permitidos (ex.: Smart Up + Advance)"]]]
+  },
+  {
+    nome: "Advance 700",
+    tagline: "Abrangência nacional, acesso à Rede Exclusiva Advance e ampla rede própria e credenciada.",
+    canais: ["SS","PME","CORP","ADES","LIC"],
+    abran: "NACIONAL",
+    mercado: "SS | PME",
+    minVidas: "1 vida",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento"],
+      ["Coparticipação","Copay Total e Parcial | S/ Copay somente Corp"],
+      ["Reembolso","7 dias • R$ 96,00/dia"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"]
+    ],
+    difer: [
+      "Livre Escolha",
+      "Rede própria e credenciada de excelência",
+      "Coberturas adicionais ao Rol da ANS",
+      "832 unidades próprias e integradas nas 5 regiões brasileiras",
+      "Convite para Rede Própria somente quando não há justificativa médica para Rede Credenciada"
+    ],
+    rede: ["Toda a Rede do Advance 600 +","Hospital Beneficiência Portuguesa de SP","Hospital São Camilo (Pompéia)","Hospital São Camilo (Santana)","Hospital São Camilo (Ipiranga)","Hospital Nipo Brasileiro","Hospital Leforte","Hospital Ana Costa","Hospital Pasteur (Rio)","Hospital Badim (Rio)","Unidade Advance"],
+    labs: ["Laboratório Lavoisier","Laboratório Sérgio Franco","Femme","Centro de Genomas","Lab Clínico Raul Dias dos Santos","CDB"],
+    cidades: ["Abrangência nacional"],
+    extras: [["Contratos",["A partir de 1 vida na proposta","Produtos mistos permitidos"]]]
+  },
+  {
+    nome: "Premium 900 Care",
+    tagline: "Cuidado superior, com assistência de viagem internacional e programa de imunização. Sem rede D'Or.",
+    canais: ["SS","PME","CORP","ADES","LIC"],
+    abran: "NACIONAL",
+    mercado: "SS | PME",
+    minVidas: "2 vidas",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento"],
+      ["Coparticipação","Copay Total e Parcial | S/ Copay somente Corp"],
+      ["Reembolso","5 dias • R$ 240,00/dia"],
+      ["Rede","SEM rede D'Or"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"]
+    ],
+    difer: [
+      "Assistência de Viagem Internacional",
+      "Programa de Imunização de Vacinas",
+      "Livre Escolha",
+      "Coleta domiciliar",
+      "Aconselhamento telefônico em saúde",
+      "Ala privativa para o atendimento oncológico",
+      "Reembolso diferenciado Brasil e exterior",
+      "832 unidades próprias e integradas nas 5 regiões"
+    ],
+    rede: ["Toda a Rede do Advance 700 +","Hospital Oswaldo Cruz","Maternidade Santa Joana","Hospital 9 de Julho","Hospital Santa Catarina","Hospital Samaritano","Hospital Rios D'Or","Unidade Advance"],
+    labs: ["Laboratório Delboni","Laboratório CDB","A+","Salomão e Zoppi"],
+    cidades: ["Abrangência nacional"],
+    extras: [["Contratos",["A partir de 2 vidas na proposta","Sem rede D'Or (diferencial vs. Premium 900.1)","Produtos mistos permitidos"]]]
+  },
+  {
+    nome: "Premium 900.1",
+    tagline: "Cuidado superior com a rede D'Or. Assistência de viagem e programa de imunização.",
+    canais: ["SS","PME","CORP","ADES","LIC"],
+    abran: "NACIONAL",
+    mercado: "SS | PME",
+    minVidas: "3 vidas",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento"],
+      ["Coparticipação","Copay Total e Parcial | S/ Copay somente Corp"],
+      ["Reembolso","5 dias • R$ 240,00/dia"],
+      ["Rede","COM rede D'Or (São Luiz, Rios D'Or e outras unidades)"],
+      ["Plano","Completo Ambulatorial, Hospitalar c/ Obstetrícia e Odonto (ROL ANS)"]
+    ],
+    difer: [
+      "Assistência de Viagem Internacional",
+      "Programa de Imunização de Vacinas",
+      "Livre Escolha",
+      "Coleta domiciliar",
+      "Aconselhamento telefônico em saúde",
+      "Vendas a partir de 5 vidas (PME)",
+      "832 unidades próprias e integradas nas 5 regiões"
+    ],
+    rede: ["Toda a Rede do Premium 900 Care +","Hospital São Luiz (Morumbi)","Hospital Brasil","Hospital São Luiz (Itaim)","Hospital São Luiz (Anália Franco)","Hospital São Luiz (Guarulhos)","Hospital São Luiz (Alphaville)","Hospital Infantil Sabará","Unidade Advance"],
+    labs: ["Laboratório Delboni","Laboratório CDB","A+","Salomão e Zoppi"],
+    cidades: ["Abrangência nacional"],
+    extras: [["Contratos",["A partir de 3 vidas na proposta","Produtos mistos permitidos","Prefeitura de prestador de serviço e agregados NÃO aceita nesta linha"]]]
+  },
+  {
+    nome: "Infinity 1000.11",
+    tagline: "A linha mais completa e sofisticada, unindo abrangência, exclusividade e excelência em saúde.",
+    canais: ["PME","CORP","ADES","LIC"],
+    abran: "NACIONAL",
+    mercado: "SS | PME",
+    minVidas: "5 vidas",
+    carac: [
+      ["Segmentação","Ambulatorial + Hospitalar com Obstetrícia (AH | AHO)"],
+      ["Acomodação","Enfermaria e Apartamento"],
+      ["Coparticipação","Copay Total e Parcial | S/ Copay somente Corp"],
+      ["Reembolso","3 dias • R$ 400,00/dia"],
+      ["Plano","Ambulatorial, Hospitalar c/ Obstetrícia e Assistência Odontológica completa (ROL ANS)"]
+    ],
+    difer: [
+      "Assistência de Viagem Internacional",
+      "Livre Escolha",
+      "Assistência Odontológica completa",
+      "Coleta domiciliar",
+      "Serviço Concierge",
+      "Vacinas a domicílio",
+      "Aconselhamento médico",
+      "Check-up disponível apenas para titulares",
+      "Ala privativa para atendimento oncológico",
+      "832 unidades próprias e integradas nas 5 regiões"
+    ],
+    rede: ["Toda a Rede do Premium 900 +","Hospital Albert Einstein","Hospital Sírio-Libanês","Maternidade São Luiz Star","Hospital BP Mirante","Maternidade Pro Matre","Hospital Infantil Sabará","Hospital Copa Star (Rio)"],
+    labs: ["Laboratório Fleury (SP)","Alta Diagnósticos","Unidade Advance"],
+    cidades: ["Abrangência nacional"],
+    extras: [["Contratos",["A partir de 5 vidas na proposta (produtos mistos)","Check-up apenas para titulares do Infinity"]],["Contatos",["Concierge da Unidade (agendamento): (11) 95649-0785","Dúvidas e autorização de procedimentos: (11) 98515-5856"]]]
+  }
+];
+
+var OFERTA = [
+  ["Nosso Médico",[1,1,1,1,1,1],"1 vida (PF)","Grupo de Municípios"],
+  ["Smart Up",[1,1,1,1,1,1],"1 vida (PF)","Grupo de Municípios"],
+  ["Smart Up Ambulatorial",[1,0,0,0,0,0],"1 vida (PF)","SP e RJ"],
+  ["Smart Flex SP",[0,1,1,1,1,1],"1 vida","Grupo de Municípios"],
+  ["Smart Prime",[0,1,1,1,0,1],"1 vida","NACIONAL"],
+  ["Smart 300",[0,1,1,0,0,0],"1 vida","SP, RJ, MG, PR"],
+  ["Smart 500",[0,1,1,0,0,0],"1 vida","SP, RJ, MG, DF, PR"],
+  ["Pleno Vale do Paraíba",[0,1,1,0,0,0],"1 vida","Regional"],
+  ["Advance 600",[0,1,1,1,1,1],"1 vida","NACIONAL"],
+  ["Advance 700",[0,1,1,1,1,1],"1 vida","NACIONAL"],
+  ["Premium 900 Care",[0,1,1,1,1,1],"2 vidas","NACIONAL"],
+  ["Premium 900.1",[0,1,1,1,1,1],"3 vidas","NACIONAL"],
+  ["Infinity 1000.11",[0,0,1,1,1,1],"5 vidas","NACIONAL"]
+];
+
+var COLS = ["IND","SS","PME","CORP","ADES","LIC"];
+var PRODUTO_ATUAL = null;
+var ABA_ATUAL = 0;
+
+function renderGrid() {
+  var g = document.getElementById("gridProdutos");
+  var h = "";
+  for (var i = 0; i < PRODUTOS.length; i++) {
+    var p = PRODUTOS[i];
+    h += '<button class="btn-prod" id="bt' + i + '" onclick="showProduto(' + i + ')">' +
+      '<div class="nome">' + p.nome + '</div>' +
+      '<div class="abran">' + p.abran + ' • ' + p.mercado + '</div>' +
+      '</button>';
+  }
+  g.innerHTML = h;
+}
+
+function renderTabela() {
+  var b = document.getElementById("tabelaOferta");
+  var h = "";
+  for (var i = 0; i < OFERTA.length; i++) {
+    var o = OFERTA[i];
+    h += '<tr><td><b>' + o[0] + '</b></td>';
+    for (var c = 0; c < 6; c++) {
+      h += '<td class="c">' + (o[1][c] ? '<span class="s">√</span>' : '<span class="x">×</span>') + '</td>';
     }
-    function fechar() { document.getElementById('overlay').style.display = 'none'; }
+    h += '<td>' + o[2] + '</td><td>' + o[3] + '</td></tr>';
+  }
+  b.innerHTML = h;
+}
 
-    const listaTodos = [["ANDERSON", "ANGRA", 13, 15, 195], ["ANDREA", "ANGRA", 11, 15, 165], ["BIA", "ANGRA", 8, 15, 120], ["EMILIENE", "ANGRA", 14, 15, 210], ["JESSICA ROCHA", "ANGRA", 15, 15, 225], ["JOKEBEDYA", "ANGRA", 12, 15, 180], ["LUANA", "ANGRA", 5, 0, 0], ["MIRIAM", "ANGRA", 14, 15, 210], ["FRAN CASTRO", "ANGRA", 0, 0, 0], ["HYANNA", "ANGRA", 1, 0, 0], ["LARA FABIAN", "ANGRA", 5, 0, 0], ["KEYLLA", "ANGRA", 3, 0, 0], ["IANA", "ANGRA", 0, 0, 0], ["KARINE GASPAR", "ANGRA", 3, 0, 0], ["IAN", "IBIZA", 7, 15, 105], ["CAROLINA SILVA", "IBIZA", 2, 0, 0], ["ERBENIA", "IBIZA", 20, 25, 500], ["ERIC", "IBIZA", 28, 30, 840], ["GISELLY", "IBIZA", 11, 15, 165], ["IAGO", "IBIZA", 0, 0, 0], ["KARINY", "IBIZA", 10, 15, 150], ["KAROLINY BORGES", "IBIZA", 14, 15, 210], ["VANESSA VIANA", "IBIZA", 14, 15, 210], ["CLAUDIA CARNEIRO", "IBIZA", 1, 0, 0], ["ITALO ALVES", "IBIZA", 8, 15, 120], ["CAROL SANTOS", "IBIZA", 7, 15, 105], ["ANA CLARA NASCIMENTO", "IBIZA", 0, 0, 0], ["RAFAELA DE SOUSA", "IBIZA", 1, 0, 0], ["JHENYFER", "IBIZA", 0, 0, 0], ["ANDERSON ARAUJO", "BORA BORA", 11, 15, 165], ["ANA CLARA", "BORA BORA", 2, 0, 0], ["ANA KARLA", "BORA BORA", 0, 0, 0], ["CAROLINE FELIX", "BORA BORA", 6, 15, 90], ["CLARISSE TORQUATO", "BORA BORA", 0, 0, 0], ["DAVI LIMA", "BORA BORA", 8, 15, 120], ["EVERARDO", "BORA BORA", 7, 15, 105], ["GABRIEL GOMES", "BORA BORA", 12, 15, 180], ["MARDO", "BORA BORA", 5, 0, 0], ["VICTOR FIRMINO", "BORA BORA", 2, 0, 0], ["ALCIONE MARQUES", "BORA BORA", 1, 0, 0], ["LENNY DOMINGOS", "BORA BORA", 4, 0, 0], ["AGATHA", "BORA BORA", 3, 0, 0], ["CHARLES", "BORA BORA", 14, 15, 210], ["CECILIA", "BORA BORA", 2, 0, 0], ["IARA", "BORA BORA", 0, 0, 0], ["ARIANE", "BORA BORA", 5, 0, 0], ["MONICA", "FERNANDO DE NORONHA", 20, 25, 500], ["CACAU", "FERNANDO DE NORONHA", 13, 15, 195], ["CARLOS HENRIQUE", "FERNANDO DE NORONHA", 0, 0, 0], ["DARLISON", "FERNANDO DE NORONHA", 3, 0, 0], ["EMERSON", "FERNANDO DE NORONHA", 5, 0, 0], ["GABRIEL PESSOA", "FERNANDO DE NORONHA", 15, 15, 225], ["RAYSSA SILVA", "FERNANDO DE NORONHA", 8, 15, 120], ["REGINALDO", "FERNANDO DE NORONHA", 3, 0, 0], ["ELLEN GADELHA", "FERNANDO DE NORONHA", 4, 0, 0], ["VAL PIRES", "FERNANDO DE NORONHA", 5, 0, 0], ["AMANDA BEATRIZ", "FERNANDO DE NORONHA", 0, 0, 0], ["MARIA GRAZIELA", "FERNANDO DE NORONHA", 0, 0, 0]];
-    const listaDiretos = [["MARA", 23, 25, 575], ["CAROLI", 8, 15, 120], ["RC CORRETORA", 6, 15, 90], ["REGIS", 16, 15, 240], ["GLAUCIANE", 30, 30, 900], ["NEILIANE", 16, 15, 240]];
-
-    function abrirLista() {
-      const dir = document.getElementById('l-diretos');
-      const todos = document.getElementById('l-todos');
-      let h = '';
-      let sumDir = 0;
-      for (const d of listaDiretos) {
-        sumDir += d[3];
-        h += '<tr class="dir"><td>' + d[0] + '</td><td class="c">' + d[1] + '</td><td class="c">' + real(d[2]) + '</td><td class="r">' + real(d[3]) + '</td></tr>';
-      }
-      h += '<tr class="total"><td colspan="3">TOTAL</td><td class="r">' + real(sumDir) + '</td></tr>';
-      dir.innerHTML = h;
-
-      let t = '';
-      let sumTot = 0;
-      for (const d of listaTodos) {
-        const eq = d[1] === 'FERNANDO DE NORONHA' ? 'NORONHA' : d[1];
-        const cls = d[4] === 0 ? ' class="cred-zero"' : '';
-        sumTot += d[4];
-        t += '<tr' + cls + '><td>' + d[0] + '</td><td class="c">' + eq + '</td><td class="c">' + d[2] + '</td><td class="c">' + real(d[3]) + '</td><td class="r">' + real(d[4]) + '</td></tr>';
-      }
-      t += '<tr class="total"><td colspan="4">TOTAL</td><td class="r">' + real(sumTot) + '</td></tr>';
-      todos.innerHTML = t;
-      document.getElementById('overlay2').style.display = 'flex';
+function visaoGeral(p) {
+  var h = '<div class="grid-2">';
+  h += '<div class="bloco"><h4>Características</h4><ul class="lista">';
+  for (var i = 0; i < p.carac.length; i++) {
+    h += '<li><b>' + p.carac[i][0] + ':</b> ' + p.carac[i][1] + '</li>';
+  }
+  h += '</ul></div>';
+  h += '<div class="bloco"><h4>Diferenciais</h4>' + listaUl(p.difer) + '</div></div>';
+  if (p.extras && p.extras.length) {
+    h += '<div class="grid-2" style="margin-top:14px;">';
+    for (var i = 0; i < p.extras.length; i++) {
+      h += '<div class="bloco"><h4>' + p.extras[i][0] + '</h4>' + listaUl(p.extras[i][1]) + '</div>';
     }
-    function fecharLista() { document.getElementById('overlay2').style.display = 'none'; }
-  </script>
+    h += '</div>';
+  }
+  h += '<div class="aviso azul">' + p.minVidas + ' • ' + p.canais.join(" | ") + ' • ' + p.mercado + '</div>';
+  return h;
+}
+
+function abasProduto(p) {
+  return [
+    { nome: "Visão Geral", corpo: visaoGeral(p) },
+    { nome: "Rede de Hospitais", corpo: '<h3 style="font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:#007b3d;margin-bottom:8px;">Destaques de Rede</h3>' + listaUl(p.rede) },
+    { nome: "Laboratórios", corpo: '<h3 style="font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:#007b3d;margin-bottom:8px;">Laboratórios e Diagnóstico</h3>' + listaUl(p.labs) },
+    { nome: "Cidades", corpo: '<h3 style="font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:#007b3d;margin-bottom:8px;">Área de Atendimento</h3>' + listaUl(p.cidades) }
+  ];
+}
+
+function showProduto(i) {
+  PRODUTO_ATUAL = i;
+  ABA_ATUAL = 0;
+  var p = PRODUTOS[i];
+  var painel = document.getElementById("painelProduto");
+  painel.classList.add("aberto");
+  document.getElementById("pNome").textContent = p.nome;
+  document.getElementById("pTagline").textContent = p.tagline;
+  var btns = document.getElementsByClassName("btn-prod");
+  for (var b = 0; b < btns.length; b++) btns[b].classList.remove("ativo");
+  var ativo = document.getElementById("bt" + i);
+  if (ativo) ativo.classList.add("ativo");
+  renderAbas(i);
+  painel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderAbas(i) {
+  var p = PRODUTOS[i];
+  var abas = abasProduto(p);
+  var h = "";
+  for (var a = 0; a < abas.length; a++) {
+    h += '<button class="aba' + (a === ABA_ATUAL ? " on" : "") + '" onclick="showAba(' + a + ')">' + abas[a].nome + '</button>';
+  }
+  document.getElementById("pAbas").innerHTML = h;
+  document.getElementById("pCorpo").innerHTML = abas[ABA_ATUAL].corpo;
+}
+
+function showAba(a) {
+  ABA_ATUAL = a;
+  renderAbas(PRODUTO_ATUAL);
+}
+
+var QUIZ = [
+  { q: "Qual produto é o único com foco em Medicina da Família, com até 3 dias úteis para consulta?", o: ["Advance 700","Nosso Médico","Smart Flex","Infinity 1000.11"], c: 1, r: "Nosso Médico — médicos de família com acompanhamento dedicado (presencial e online)." },
+  { q: "Qual produto NÃO possui reembolso?", o: ["Advance 600","Premium 900 Care","Smart Prime","Infinity 1000.11"], c: 2, r: "Smart Prime — cobertura nacional do varejo, sem reembolso." },
+  { q: "A partir de quantas vidas o Infinity 1000.11 é comercializado?", o: ["1 vida","2 vidas","3 vidas","5 vidas"], c: 3, r: "5 vidas na proposta (produtos mistos)." },
+  { q: "Qual a diferença entre Premium 900 Care e Premium 900.1?", o: ["Só o preço, são iguais","Rede D'Or (Care sem D'Or; 900.1 com D'Or) e vidas mínimas","Um é nacional e o outro regional","Um tem odonto e o outro não"], c: 1, r: "Care = sem rede D'Or, a partir de 2 vidas. 900.1 = com rede D'Or (São Luiz), a partir de 3 vidas." },
+  { q: "Reembolso do Advance 700: prazo e limite diário.", o: ["7 dias • R$ 96,00","7 dias • R$ 75,00","5 dias • R$ 240,00","3 dias • R$ 400,00"], c: 0, r: "Advance 700 = 7 dias • R$ 96,00. Advance 600 = 7 dias • R$ 75,00. Premium = 5 dias • R$ 240,00. Infinity = 3 dias • R$ 400,00." },
+  { q: "A área de vendas considera municípios de até ___ da filial, e a venda é feita pelo ___ do beneficiário.", o: ["20 km • endereço da empresa","40 km • endereço residencial","40 km • endereço comercial","60 km • CEP da filial"], c: 1, r: "Até 40 km da filial, conforme o endereço RESIDENCIAL do beneficiário — nunca o da empresa." },
+  { q: "A Cópia de Carência Especial 2026 é válida até quando e até qual idade?", o: ["31/08/2026 • até 74 anos","31/12/2026 • até 64 anos","30/09/2026 • até 65 anos","31/08/2026 • até 59 anos"], c: 0, r: "Até 31/08/2026, até 74 anos, incluindo parto e CPT (exceto terapias), comissão normal." },
+  { q: "Qual faixa de aceitação de agregados (pai/mãe, irmãos, sogros etc.) em Premium 900.1 e Infinity?", o: ["Até 74 anos","Até 53 anos","Não aceitam agregados","Até 60 anos"], c: 2, r: "Premium 900.1 e Infinity não aceitam agregados (X). Prestador de serviço também não é aceito nessas linhas." },
+  { q: "Carência do Odonto Premium: urgência/emergência e endodontia/prótese.", o: ["24 horas • 180 dias","24 horas • 90 dias","60 dias • 180 dias","30 dias • 120 dias"], c: 0, r: "Urgência/Emergência 24h; endodontia, prótese e cirurgia 180 dias." },
+  { q: "Em quais internações o copay é ISENTO nos produtos SS/PME?", o: ["Em qualquer hospital credenciado","Somente em rede própria","Nunca","Somente no Infinity"], c: 1, r: "Internação na Rede Própria é isenta de copay (SS/PME)." },
+  { q: "Quantas unidades próprias e integradas a Hapvida NotreDame contabiliza nas 5 regiões?", o: ["832","512","310","1.024"], c: 0, r: "832 unidades próprias e integradas — reforço para as linhas Advance, Premium e Infinity." },
+  { q: "Taxa de implantação SS/PME e produtos PF:", o: ["R$ 25 por proposta • PF sem taxa","R$ 50 por proposta • PF R$ 25","Sem taxa nos dois","R$ 25 por vida • PF sem taxa"], c: 0, r: "SS/PME: R$ 25,00 por proposta (ex.: Unidade Avançada Brigadeiro). PF: sem taxa de implantação." }
+];
+
+function renderQuiz() {
+  var box = document.getElementById("quizBox");
+  var h = "";
+  for (var i = 0; i < QUIZ.length; i++) {
+    var q = QUIZ[i];
+    h += '<div class="quiz-q" id="qq' + i + '"><div class="perg">' + (i + 1) + ". " + q.q + '</div>';
+    for (var a = 0; a < q.o.length; a++) {
+      h += '<label><input type="radio" name="q' + i + '" value="' + a + '"> ' + q.o[a] + '</label>';
+    }
+    h += '<div class="resp"><b>Gabarito:</b> ' + esc(q.o[q.c]) + '. ' + q.r + '</div></div>';
+  }
+  box.innerHTML = h;
+}
+
+function corrigirQuiz() {
+  var acertos = 0;
+  for (var i = 0; i < QUIZ.length; i++) {
+    var q = QUIZ[i];
+    var nome = "q" + i;
+    var sel = null;
+    var radios = document.getElementsByName(nome);
+    for (var a = 0; a < radios.length; a++) {
+      if (radios[a].checked) { sel = parseInt(radios[a].value, 10); break; }
+    }
+    var el = document.getElementById("qq" + i);
+    el.classList.remove("certo", "errado");
+    if (sel === q.c) {
+      acertos++;
+      el.classList.add("certo");
+    } else {
+      el.classList.add("errado");
+    }
+  }
+  var pct = Math.round((acertos / QUIZ.length) * 100);
+  var msg = "";
+  if (pct >= 90) msg = "Excelente! Você está pronto para vender.";
+  else if (pct >= 70) msg = "Muito bom! Revise os pontos que errou.";
+  else if (pct >= 50) msg = "OK. Estude novamente o portfólio e as regras.";
+  else msg = "Que tal revisar o material e tentar de novo?";
+  document.getElementById("quizResultado").innerHTML =
+    '<span class="' + (pct >= 70 ? "ok" : "nok") + '">Você acertou ' + acertos + ' de ' + QUIZ.length + ' (' + pct + '%). ' + msg + '</span>';
+}
+
+function limparQuiz() {
+  for (var i = 0; i < QUIZ.length; i++) {
+    var el = document.getElementById("qq" + i);
+    if (el) el.classList.remove("certo", "errado");
+    var radios = document.getElementsByName("q" + i);
+    for (var a = 0; a < radios.length; a++) radios[a].checked = false;
+  }
+  document.getElementById("quizResultado").innerHTML = "";
+}
+
+renderGrid();
+renderTabela();
+renderQuiz();
+</script>
 </body>
 </html>
